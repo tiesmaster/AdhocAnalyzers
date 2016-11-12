@@ -5,6 +5,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Text;
 
 namespace AdhocAnalyzers
 {
@@ -44,9 +45,18 @@ namespace AdhocAnalyzers
 
             if (isDeprecatedMethod)
             {
-                var diagnostic = Diagnostic.Create(Rule, methodNode.GetLocation(), classNode.Identifier.Text);
+                var methodHeaderLocation = CalculateDiagnosticLocation(methodNode);
+                var diagnostic = Diagnostic.Create(Rule, methodHeaderLocation, classNode.Identifier.Text);
                 context.ReportDiagnostic(diagnostic);
             }
+        }
+
+        private static Location CalculateDiagnosticLocation(BaseMethodDeclarationSyntax methodNode)
+        {
+            var start = methodNode.SpanStart;
+            var end = methodNode.ParameterList.Span.End;
+
+            return Location.Create(methodNode.SyntaxTree, TextSpan.FromBounds(start, end));
         }
     }
 }
