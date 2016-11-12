@@ -40,6 +40,9 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Utils\SyntaxNodeExtensions.cs" />
+    <Compile Include="Utils\SyntaxTokenExtensions.cs" />
+    <Compile Include="Utils\TextLineExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources.resx">
