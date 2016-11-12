@@ -1,17 +1,17 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using TestHelper;
 
+using Xunit;
+
 namespace AdhocAnalyzers.Test
 {
-    [TestClass]
     public class AutoMapperDeprecatedProfileTests : CodeFixVerifier
     {
         //No diagnostics expected to show up
-        [TestMethod]
+        [Fact]
         public void TestMethod1()
         {
             var test = @"";
@@ -19,7 +19,7 @@ namespace AdhocAnalyzers.Test
             VerifyCSharpDiagnostic(test);
         }
 
-        [TestMethod]
+        [Fact]
         public void AnalyzerTest()
         {
             var test = @"
@@ -44,7 +44,7 @@ public class SomeProfile : Profile
             VerifyCSharpDiagnostic(test, expected);
         }
 
-        [TestMethod]
+        [Fact]
         public void CodeFixTest()
         {
             var test = @"
