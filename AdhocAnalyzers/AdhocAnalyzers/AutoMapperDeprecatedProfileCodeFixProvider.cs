@@ -15,8 +15,6 @@ namespace AdhocAnalyzers
     [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(AutoMapperDeprecatedProfileCodeFixProvider)), Shared]
     public class AutoMapperDeprecatedProfileCodeFixProvider : CodeFixProvider
     {
-        #region BOILERPLATE
-
         private const string TITLE = "Convert to constructor";
 
         public sealed override ImmutableArray<string> FixableDiagnosticIds
@@ -24,8 +22,6 @@ namespace AdhocAnalyzers
 
         public sealed override FixAllProvider GetFixAllProvider()
             => WellKnownFixAllProviders.BatchFixer;
-
-        #endregion
 
         public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {
