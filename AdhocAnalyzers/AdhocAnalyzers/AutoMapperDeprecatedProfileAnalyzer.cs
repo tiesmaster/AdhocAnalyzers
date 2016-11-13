@@ -14,22 +14,26 @@ namespace AdhocAnalyzers
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class AutoMapperDeprecatedProfileAnalyzer : DiagnosticAnalyzer
     {
-        private static DiagnosticDescriptor Rule = new DiagnosticDescriptor(
-            DiagnosticId, Title, MessageFormat, Category, DiagnosticSeverity.Warning, isEnabledByDefault: true, description: Description);
+        private readonly DiagnosticDescriptor _rule = new DiagnosticDescriptor(
+            DIAGNOSTIC_ID,
+            TITLE,
+            MESSAGE_FORMAT,
+            CATEGORY,
+            DiagnosticSeverity.Warning,
+            isEnabledByDefault: true,
+            description: DESCRIPTION);
 
-        public const string DiagnosticId = "AM0001";
+        public const string DIAGNOSTIC_ID = "AM0001";
 
-        private const string Category = "AutoMapperV5Migration";
-        private const string Title = nameof(AutoMapperDeprecatedProfileAnalyzer);
-        private const string MessageFormat = "Class '{0}' is not upgraded yet to AutoMapper V5";
-        private const string Description = "Reports AutoMapper legacy \"protected override void Configure()\" methods";
+        private const string CATEGORY = "AutoMapperV5Migration";
+        private const string TITLE = nameof(AutoMapperDeprecatedProfileAnalyzer);
+        private const string MESSAGE_FORMAT = "Class '{0}' is not upgraded yet to AutoMapper V5";
+        private const string DESCRIPTION = "Reports AutoMapper legacy \"protected override void Configure()\" methods";
 
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(_rule);
 
         public override void Initialize(AnalysisContext context)
-        {
-            context.RegisterSyntaxNodeAction(AnalyzeMethod, SyntaxKind.MethodDeclaration);
-        }
+            => context.RegisterSyntaxNodeAction(AnalyzeMethod, SyntaxKind.MethodDeclaration);
 
         private void AnalyzeMethod(SyntaxNodeAnalysisContext context)
         {
@@ -61,13 +65,13 @@ namespace AdhocAnalyzers
                     ((IdentifierNameSyntax)baseTypeNode.Type).IsNamed("Profile"))
                 ?? false;
 
-        private static void Report(
+        private void Report(
             SyntaxNodeAnalysisContext context,
             MethodDeclarationSyntax methodNode,
             ClassDeclarationSyntax classNode)
         {
             var methodHeaderLocation = CalculateDiagnosticLocation(methodNode);
-            var diagnostic = Diagnostic.Create(Rule, methodHeaderLocation, classNode.Identifier.Text);
+            var diagnostic = Diagnostic.Create(_rule, methodHeaderLocation, classNode.Identifier.Text);
             context.ReportDiagnostic(diagnostic);
         }
 

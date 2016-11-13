@@ -20,19 +20,26 @@ namespace AdhocAnalyzers
         private const string TITLE = "Convert to constructor";
 
         public sealed override ImmutableArray<string> FixableDiagnosticIds
-            => ImmutableArray.Create(AutoMapperDeprecatedProfileAnalyzer.DiagnosticId);
+            => ImmutableArray.Create(AutoMapperDeprecatedProfileAnalyzer.DIAGNOSTIC_ID);
 
         public sealed override FixAllProvider GetFixAllProvider()
             => WellKnownFixAllProviders.BatchFixer;
 
         public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {
-            var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
+            var root = await context.Document
+                .GetSyntaxRootAsync(context.CancellationToken)
+                .ConfigureAwait(false);
 
             var diagnostic = context.Diagnostics.First();
             var diagnosticSpan = diagnostic.Location.SourceSpan;
 
-            var declaration = root.FindToken(diagnosticSpan.Start).Parent.AncestorsAndSelf().OfType<MethodDeclarationSyntax>().First();
+            var declaration = root
+                .FindToken(diagnosticSpan.Start)
+                .Parent
+                .AncestorsAndSelf()
+                .OfType<MethodDeclarationSyntax>()
+                .First();
 
             context.RegisterCodeFix(
                 CodeAction.Create(
@@ -42,7 +49,10 @@ namespace AdhocAnalyzers
                 diagnostic);
         }
 
-        private async Task<Document> ConvertToConstructor(Document document, MethodDeclarationSyntax oldMethodNode, CancellationToken cancellationToken)
+        private async Task<Document> ConvertToConstructor(
+            Document document,
+            MethodDeclarationSyntax oldMethodNode,
+            CancellationToken cancellationToken)
         {
             var classIdentifier = oldMethodNode.Ancestors().OfType<ClassDeclarationSyntax>().Single().Identifier;
             var constructorIdentifier = classIdentifier.NormalizeWhitespace();
