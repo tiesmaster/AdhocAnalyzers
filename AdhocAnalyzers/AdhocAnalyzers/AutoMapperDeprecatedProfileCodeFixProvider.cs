@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
+using AdhocAnalyzers.Utils;
+
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CodeActions;
@@ -45,13 +47,29 @@ namespace AdhocAnalyzers
             var classIdentifier = oldMethodNode.Ancestors().OfType<ClassDeclarationSyntax>().Single().Identifier;
             var constructorIdentifier = classIdentifier.NormalizeWhitespace();
 
+            var newBody = oldMethodNode.Body;
+            var newParameterList = oldMethodNode.ParameterList;
+
+            var expressionBody = oldMethodNode.ExpressionBody;
+            if (newBody == null)
+            {
+                var oldMethodTrailingTrivia = oldMethodNode.GetTrailingTrivia();
+                newParameterList = newParameterList.WithTrailingTrivia(oldMethodTrailingTrivia);
+
+                var expressionBodyAsStatement = SyntaxFactory.ExpressionStatement(expressionBody.Expression);
+                newBody = SyntaxFactory.Block(expressionBodyAsStatement).NormalizeWhitespace();
+
+                var baseIndentationForMethod = oldMethodNode.GetLeadingTrivia().Last();
+                newBody = (BlockSyntax)newBody.AddIndentationFromTrivia(baseIndentationForMethod);
+            }
+
             var newMethodNode = SyntaxFactory
                 .ConstructorDeclaration(constructorIdentifier)
                 .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
                 .NormalizeWhitespace()
                 .WithAttributeLists(oldMethodNode.AttributeLists)
-                .WithParameterList(oldMethodNode.ParameterList)
-                .WithBody(oldMethodNode.Body)
+                .WithParameterList(newParameterList)
+                .WithBody(newBody)
                 .WithTriviaFrom(oldMethodNode);
 
             var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
