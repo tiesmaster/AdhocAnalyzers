@@ -11,6 +11,7 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Formatting;
 
 namespace AdhocAnalyzers
 {
@@ -54,8 +55,7 @@ namespace AdhocAnalyzers
             MethodDeclarationSyntax oldMethodNode,
             CancellationToken cancellationToken)
         {
-            var classIdentifier = oldMethodNode.Ancestors().OfType<ClassDeclarationSyntax>().Single().Identifier;
-            var constructorIdentifier = classIdentifier.NormalizeWhitespace();
+            var constructorIdentifier = oldMethodNode.Ancestors().OfType<ClassDeclarationSyntax>().Single().Identifier;
 
             var newBody = oldMethodNode.Body;
             var newParameterList = oldMethodNode.ParameterList;
@@ -66,8 +66,7 @@ namespace AdhocAnalyzers
                 var oldMethodTrailingTrivia = oldMethodNode.GetTrailingTrivia();
                 newParameterList = newParameterList.WithTrailingTrivia(oldMethodTrailingTrivia);
 
-                var expressionBodyAsStatement = SyntaxFactory.ExpressionStatement(expressionBody.Expression);
-                newBody = SyntaxFactory.Block(expressionBodyAsStatement).NormalizeWhitespace();
+                newBody = AsBlock(expressionBody.Expression);
 
                 var baseIndentationForMethod = oldMethodNode.GetLeadingTrivia().Last();
                 newBody = (BlockSyntax)newBody.AddIndentationFromTrivia(baseIndentationForMethod);
@@ -76,15 +75,22 @@ namespace AdhocAnalyzers
             var newMethodNode = SyntaxFactory
                 .ConstructorDeclaration(constructorIdentifier)
                 .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
-                .NormalizeWhitespace()
                 .WithAttributeLists(oldMethodNode.AttributeLists)
                 .WithParameterList(newParameterList)
                 .WithBody(newBody)
-                .WithTriviaFrom(oldMethodNode);
+                .WithTriviaFrom(oldMethodNode)
+                .WithAdditionalAnnotations(Formatter.Annotation);
 
             var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
             var newRoot = root.ReplaceNode(oldMethodNode, newMethodNode);
             return document.WithSyntaxRoot(newRoot);
+        }
+
+        private static BlockSyntax AsBlock(ExpressionSyntax expressionNode)
+        {
+            var expressionBodyAsStatement = SyntaxFactory.ExpressionStatement(expressionNode);
+            var a = SyntaxFactory.Block(expressionBodyAsStatement);
+            return a;
         }
     }
 }
