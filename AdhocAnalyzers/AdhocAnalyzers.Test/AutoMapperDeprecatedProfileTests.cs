@@ -45,15 +45,38 @@ public class SomeProfile : Profile
         }
 
         [Fact]
-        public void CodeFixTest()
+        public void CodeFixTest_ForMethodBody()
         {
             var test = @"
 public class SomeProfile : Profile
 {
     protected override void Configure()
     {
-        CreateMap<int, string>();
+        CreateMap<int, string>().WithStuff()
+                                .WithStuff2();
     }
+}";
+
+            var fixtest = @"
+public class SomeProfile : Profile
+{
+    public SomeProfile()
+    {
+        CreateMap<int, string>().WithStuff()
+                                .WithStuff2();
+    }
+}";
+            VerifyCSharpFix(test, fixtest, allowNewCompilerDiagnostics: true);
+        }
+
+        [Fact]
+        public void CodeFixTest_ForExpressionBodyMethod()
+        {
+            var test = @"
+public class SomeProfile : Profile
+{
+    protected override void Configure()
+        => CreateMap<int, string>();
 }";
 
             var fixtest = @"
