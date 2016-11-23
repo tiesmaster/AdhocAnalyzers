@@ -4,8 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-using AdhocAnalyzers.Utils;
-
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CodeActions;
@@ -45,52 +43,45 @@ namespace AdhocAnalyzers
             context.RegisterCodeFix(
                 CodeAction.Create(
                     title: TITLE,
-                    createChangedDocument: c => ConvertToConstructor(context.Document, declaration, c),
+                    createChangedDocument: c => ApplyFix(context.Document, declaration, c),
                     equivalenceKey: TITLE),
                 diagnostic);
         }
 
-        private async Task<Document> ConvertToConstructor(
+        private async Task<Document> ApplyFix(
             Document document,
             MethodDeclarationSyntax oldMethodNode,
             CancellationToken cancellationToken)
         {
-            var constructorIdentifier = oldMethodNode.Ancestors().OfType<ClassDeclarationSyntax>().Single().Identifier;
-
-            var newBody = oldMethodNode.Body;
-            var newParameterList = oldMethodNode.ParameterList;
-
-            var expressionBody = oldMethodNode.ExpressionBody;
-            if (newBody == null)
-            {
-                var oldMethodTrailingTrivia = oldMethodNode.GetTrailingTrivia();
-                newParameterList = newParameterList.WithTrailingTrivia(oldMethodTrailingTrivia);
-
-                newBody = AsBlock(expressionBody.Expression);
-
-                var baseIndentationForMethod = oldMethodNode.GetLeadingTrivia().Last();
-                newBody = (BlockSyntax)newBody.AddIndentationFromTrivia(baseIndentationForMethod);
-            }
-
-            var newMethodNode = SyntaxFactory
-                .ConstructorDeclaration(constructorIdentifier)
-                .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
-                .WithAttributeLists(oldMethodNode.AttributeLists)
-                .WithParameterList(newParameterList)
-                .WithBody(newBody)
-                .WithTriviaFrom(oldMethodNode)
-                .WithAdditionalAnnotations(Formatter.Annotation);
-
             var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
-            var newRoot = root.ReplaceNode(oldMethodNode, newMethodNode);
+            var newRoot = root.ReplaceNode(oldMethodNode, ConvertToConstructor(oldMethodNode));
             return document.WithSyntaxRoot(newRoot);
         }
+
+        private static ConstructorDeclarationSyntax ConvertToConstructor(MethodDeclarationSyntax oldMethodNode)
+        {
+            return SyntaxFactory
+                .ConstructorDeclaration(GetConstructorIdentifier(oldMethodNode))
+                .WithModifiers(SyntaxFactory.TokenList(PublicModifierToken))
+                .WithAttributeLists(oldMethodNode.AttributeLists)
+                .WithParameterList(oldMethodNode.ParameterList)
+                .WithBody(GetMethodBody(oldMethodNode))
+                .WithTriviaFrom(oldMethodNode)
+                .WithAdditionalAnnotations(Formatter.Annotation);
+        }
+
+        private static SyntaxToken PublicModifierToken => SyntaxFactory.Token(SyntaxKind.PublicKeyword);
+
+        private static SyntaxToken GetConstructorIdentifier(MethodDeclarationSyntax oldMethodNode)
+            => oldMethodNode.Ancestors().OfType<ClassDeclarationSyntax>().Single().Identifier;
+
+        private static BlockSyntax GetMethodBody(MethodDeclarationSyntax methodNode)
+            => methodNode.Body ?? AsBlock(methodNode.ExpressionBody.Expression);
 
         private static BlockSyntax AsBlock(ExpressionSyntax expressionNode)
         {
             var expressionBodyAsStatement = SyntaxFactory.ExpressionStatement(expressionNode);
-            var a = SyntaxFactory.Block(expressionBodyAsStatement);
-            return a;
+            return SyntaxFactory.Block(expressionBodyAsStatement);
         }
     }
 }

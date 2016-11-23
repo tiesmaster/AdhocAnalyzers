@@ -41,7 +41,6 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Utils\SyntaxNodeExtensions.cs" />
-    <Compile Include="Utils\SyntaxNodeManipulationExtensions.cs" />
     <Compile Include="Utils\SyntaxTokenExtensions.cs" />
     <Compile Include="Utils\TextLineExtensions.cs" />
   </ItemGroup>
