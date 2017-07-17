@@ -1,0 +1,6 @@
+zoek uit waarom die HasLeadingNewline zo gek is
+
+probeer extra code action toe te voegen
+	"sort and remove" te invoken, en daarna add newline separator
+add keyboard shortcut to this refactoring
+automatisch installeren bij build?
