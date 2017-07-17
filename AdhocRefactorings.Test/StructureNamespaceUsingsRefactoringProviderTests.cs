@@ -216,6 +216,20 @@ class Class1
             VerifyNoRefactoring(source, 0);
         }
 
+        [Fact]
+        public void RefactoringShouldNotBeProvidedOutsideUsingsLocation()
+        {
+            var source =
+@"using System;
+using System.Threading.Tasks;
+using Microsoft;
+
+class Class1
+{
+}";
+            VerifyNoRefactoring(source, 64);
+        }
+
         protected override CodeRefactoringProvider GetCodeRefactoringProvider()
         {
             return new StructureNamespaceUsingsRefactoringProvider();

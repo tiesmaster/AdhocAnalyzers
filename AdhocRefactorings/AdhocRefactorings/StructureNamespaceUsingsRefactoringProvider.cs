@@ -7,6 +7,7 @@ using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeRefactorings;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Text;
 
 namespace AdhocRefactorings
 {
@@ -16,8 +17,13 @@ namespace AdhocRefactorings
         public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
         {
             var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
-            var rootCompilation = root as CompilationUnitSyntax;
 
+            if (IsOutsideUsings(root, context.Span))
+            {
+                return;
+            }
+
+            var rootCompilation = (CompilationUnitSyntax)root;
             var listOfUsings = rootCompilation.Usings;
 
             if (listOfUsings.Count < 2)
@@ -25,13 +31,11 @@ namespace AdhocRefactorings
                 return;
             }
 
-            var firstUsing = listOfUsings[0];
-
             var nodesMissingNewline = new List<SyntaxNode>();
-            for (int i = 1; i < rootCompilation.Usings.Count; i++)
+            for (int i = 1; i < listOfUsings.Count; i++)
             {
-                var previousUsing = rootCompilation.Usings[i - 1];
-                var currentUsing = rootCompilation.Usings[i];
+                var previousUsing = listOfUsings[i - 1];
+                var currentUsing = listOfUsings[i];
 
                 if (!TopLevelNamespaceEquals(previousUsing, currentUsing) && !HasLeadingNewline(currentUsing))
                 {
@@ -46,6 +50,12 @@ namespace AdhocRefactorings
                         "Add newline betweeen using groups",
                         _ => AddNewlinesToNodes(context.Document, root, nodesMissingNewline)));
             }
+        }
+
+        private static bool IsOutsideUsings(SyntaxNode root, TextSpan span)
+        {
+            var currentNode = root.FindNode(span);
+            return currentNode.FirstAncestorOrSelf<UsingDirectiveSyntax>() == null;
         }
 
         private bool TopLevelNamespaceEquals(UsingDirectiveSyntax left, UsingDirectiveSyntax right)
