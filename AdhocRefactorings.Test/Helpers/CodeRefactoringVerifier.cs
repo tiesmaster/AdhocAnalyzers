@@ -17,32 +17,33 @@ namespace AdhocRefactorings.Test.Helpers
 
         protected void VerifyNoRefactoring(string source, int position)
         {
-            var codeRefactoringProvider = GetCodeRefactoringProvider();
             var document = DocumentFactory.CreateDocument(source, LanguageNames.CSharp);
-
-            var actionsRegistered = false;
-            var context = new CodeRefactoringContext(document, TextSpan.FromBounds(position, position), a => actionsRegistered = true, CancellationToken.None);
-
-            codeRefactoringProvider.ComputeRefactoringsAsync(context).Wait();
-
-            Assert.False(actionsRegistered);
+            var actions = GetCodeActions(document, position);
+            Assert.Empty(actions);
         }
 
         protected void VerifyRefactoring(string oldSource, string newSource, int position, string codeActionTitle)
         {
-            var codeRefactoringProvider = GetCodeRefactoringProvider();
             var document = DocumentFactory.CreateDocument(oldSource, LanguageNames.CSharp);
 
-            var actions = new List<CodeAction>();
-            var context = new CodeRefactoringContext(document, TextSpan.FromBounds(position, position), a => actions.Add(a), CancellationToken.None);
-
-            codeRefactoringProvider.ComputeRefactoringsAsync(context).Wait();
+            var actions = GetCodeActions(document, position);
 
             var codeActionToApply = actions.Single(action => action.Title == codeActionTitle);
             document = ApplyCodeAction(document, codeActionToApply);
 
             var actual = GetStringFromDocument(document);
             Assert.Equal(newSource, actual);
+        }
+
+        private List<CodeAction> GetCodeActions(Document document, int position)
+        {
+            var codeRefactoringProvider = GetCodeRefactoringProvider();
+
+            var actions = new List<CodeAction>();
+            var context = new CodeRefactoringContext(document, TextSpan.FromBounds(position, position), a => actions.Add(a), CancellationToken.None);
+
+            codeRefactoringProvider.ComputeRefactoringsAsync(context).Wait();
+            return actions;
         }
 
         private static Document ApplyCodeAction(Document document, CodeAction codeAction)
