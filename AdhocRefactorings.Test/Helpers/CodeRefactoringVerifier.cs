@@ -15,6 +15,19 @@ namespace AdhocRefactorings.Test.Helpers
     {
         protected abstract CodeRefactoringProvider GetCodeRefactoringProvider();
 
+        protected void VerifyNoRefactoring(string source, int position)
+        {
+            var codeRefactoringProvider = GetCodeRefactoringProvider();
+            var document = DocumentFactory.CreateDocument(source, LanguageNames.CSharp);
+
+            var actionsRegistered = false;
+            var context = new CodeRefactoringContext(document, TextSpan.FromBounds(position, position), a => actionsRegistered = true, CancellationToken.None);
+
+            codeRefactoringProvider.ComputeRefactoringsAsync(context).Wait();
+
+            Assert.False(actionsRegistered);
+        }
+
         protected void VerifyRefactoring(string oldSource, string newSource, int position, string codeActionTitle)
         {
             var codeRefactoringProvider = GetCodeRefactoringProvider();

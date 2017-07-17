@@ -166,6 +166,56 @@ class Class1
             VerifyRefactoring(oldSource, newSource, 0, "Add newline betweeen using groups");
         }
 
+        [Fact]
+        public void NoUsings_ShouldNotProvideRefactoring()
+        {
+            var source =
+@"class Class1
+{
+}";
+            VerifyNoRefactoring(source, 0);
+        }
+
+        [Fact]
+        public void OneUsings_ShouldNotProvideRefactoring()
+        {
+            var source =
+@"using System;
+
+class Class1
+{
+}";
+            VerifyNoRefactoring(source, 0);
+        }
+
+        [Fact]
+        public void TwoUsingsOfSameGroup_ShouldNotProvideRefactoring()
+        {
+            var source =
+@"using System;
+using System.Threading.Tasks;
+
+class Class1
+{
+}";
+            VerifyNoRefactoring(source, 0);
+        }
+
+        [Fact]
+        public void TwoGroupsWithExistingSeparator_ShouldNotProvideRefactoring()
+        {
+            var source =
+@"using System;
+using System.Threading.Tasks;
+
+using Microsoft;
+
+class Class1
+{
+}";
+            VerifyNoRefactoring(source, 0);
+        }
+
         protected override CodeRefactoringProvider GetCodeRefactoringProvider()
         {
             return new StructureNamespaceUsingsRefactoringProvider();
