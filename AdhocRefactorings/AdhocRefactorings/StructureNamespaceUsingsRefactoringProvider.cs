@@ -7,6 +7,7 @@ using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeRefactorings;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.Text;
 
 namespace AdhocRefactorings
@@ -45,10 +46,12 @@ namespace AdhocRefactorings
 
             if (nodesMissingNewline.Any())
             {
+                var newlineTrivia = GetNewlineTrivia(context);
+
                 context.RegisterRefactoring(
                     CodeAction.Create(
                         "Add newline betweeen using groups",
-                        _ => AddNewlinesToNodes(context.Document, root, nodesMissingNewline)));
+                        _ => AddNewlinesToNodes(context.Document, root, nodesMissingNewline, newlineTrivia)));
             }
         }
 
@@ -90,22 +93,31 @@ namespace AdhocRefactorings
                 return false;
             }
 
-            return node.GetLeadingTrivia().First() != SyntaxFactory.CarriageReturnLineFeed;
+            return node.GetLeadingTrivia().First().IsKind(SyntaxKind.EndOfLineTrivia);
         }
 
         private Task<Document> AddNewlinesToNodes(
             Document document,
             SyntaxNode root,
-            IEnumerable<SyntaxNode> nodesMissingNewline)
+            IEnumerable<SyntaxNode> nodesMissingNewline,
+            SyntaxTrivia newLineTrivia)
         {
-            var newRoot = root.ReplaceNodes(nodesMissingNewline, (oldNode, _) => AddTrailingNewline(oldNode));
+            var newRoot = root.ReplaceNodes(nodesMissingNewline, (oldNode, _) => AddTrailingNewline(oldNode, newLineTrivia));
             return Task.FromResult(document.WithSyntaxRoot(newRoot));
         }
 
-        private static SyntaxNode AddTrailingNewline(SyntaxNode node)
+        private static SyntaxNode AddTrailingNewline(SyntaxNode node, SyntaxTrivia newLineTrivia)
         {
             var oldTrivia = node.GetTrailingTrivia();
-            return node.WithTrailingTrivia(oldTrivia.Add(SyntaxFactory.CarriageReturnLineFeed));
+
+            return node.WithTrailingTrivia(oldTrivia.Add(newLineTrivia));
+        }
+
+        private static SyntaxTrivia GetNewlineTrivia(CodeRefactoringContext context)
+        {
+            var workspace = context.Document.Project.Solution.Workspace;
+            var newlineText = workspace.Options.GetOption(FormattingOptions.NewLine, LanguageNames.CSharp);
+            return SyntaxFactory.EndOfLine(newlineText);
         }
     }
 }
