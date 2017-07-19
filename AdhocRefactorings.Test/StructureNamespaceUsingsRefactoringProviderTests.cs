@@ -7,6 +7,7 @@ using AdhocRefactorings;
 using Microsoft.CodeAnalysis.CodeRefactorings;
 using AdhocRefactorings.Test.Helpers;
 using Xunit;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace AdhocRefactorings.Test
 {
@@ -49,6 +50,32 @@ class Class1
 @"using System;
 using System.Text;
 
+using Microsoft;
+
+class Class1
+{
+}";
+
+            VerifyRefactoring(oldSource, newSource, 0, "Add newline betweeen using groups");
+        }
+
+        [Fact]
+        public void GroupsSeparatedWithCommentAndNotNewline()
+        {
+            var oldSource =
+@"using System;
+using System.Text;
+// Hoi
+using Microsoft;
+
+class Class1
+{
+}";
+            var newSource =
+@"using System;
+using System.Text;
+
+// Hoi
 using Microsoft;
 
 class Class1
