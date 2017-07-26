@@ -21,11 +21,10 @@ namespace AdhocRefactorings.Helpers
 
         private Func<Document, Task<Document>> RetrieveOrganizeImportsCallback()
         {
-            // TODO: remove hardcoded version number, and derive it from typeof(Document)
+            var assemblyName = typeof(Document).GetTypeInfo().Assembly.GetName();
+            assemblyName.Name = "Microsoft.CodeAnalysis.Features";
 
-            const string fullAssemblyName = "Microsoft.CodeAnalysis.Features, Version=2.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35";
-
-            var roslynFeaturesAssembly = Assembly.Load(new AssemblyName(fullAssemblyName));
+            var roslynFeaturesAssembly = Assembly.Load(assemblyName);
 
             var staticServiceType = roslynFeaturesAssembly
                 .GetType("Microsoft.CodeAnalysis.OrganizeImports.OrganizeImportsService")
