@@ -125,6 +125,8 @@ namespace AdhocRefactorings
             return Task.FromResult(document.WithSyntaxRoot(newRoot));
         }
 
+        // TODO: merge this with ComputeRefactoringsAsync, and AddNewlinesToNodes
+
         private async Task<Document> OrganizeImportsAndAddNewlinesToNodesAsync(
             Document document,
             SyntaxTrivia newLineTrivia)
