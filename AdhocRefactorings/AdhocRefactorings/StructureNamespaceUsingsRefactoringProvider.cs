@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Composition;
 using System.Linq;
-using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
+using AdhocRefactorings.Interfaces;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeRefactorings;
@@ -18,15 +16,12 @@ namespace AdhocRefactorings
     [ExportCodeRefactoringProvider(LanguageNames.CSharp, Name = nameof(StructureNamespaceUsingsRefactoringProvider)), Shared]
     public class StructureNamespaceUsingsRefactoringProvider : CodeRefactoringProvider
     {
-        private readonly Func<Document, Task<Document>> _organizeImportsAsync;
+        private readonly IOrganizeImportsServiceWrapper _organizeImportsServiceWrapper;
 
-        public StructureNamespaceUsingsRefactoringProvider()
+        [ImportingConstructor]
+        public StructureNamespaceUsingsRefactoringProvider(IOrganizeImportsServiceWrapper organizeImportsServiceWrapper)
         {
-            var featuresAssembly = Assembly.Load(new AssemblyName("Microsoft.CodeAnalysis.Features, Version=2.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35"));
-            var staticServiceType = featuresAssembly.GetType("Microsoft.CodeAnalysis.OrganizeImports.OrganizeImportsService").GetTypeInfo();
-
-            var targetMethod = staticServiceType.GetDeclaredMethod("OrganizeImportsAsync");
-            _organizeImportsAsync = document => (Task<Document>)targetMethod.Invoke(null, new object[] { document, true, CancellationToken.None });
+            _organizeImportsServiceWrapper = organizeImportsServiceWrapper;
         }
 
         public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
@@ -131,7 +126,10 @@ namespace AdhocRefactorings
             Document document,
             SyntaxTrivia newLineTrivia)
         {
-            var organizedDocument = await _organizeImportsAsync(document).ConfigureAwait(false);
+            var organizedDocument = await _organizeImportsServiceWrapper
+                .OrganizeImportsAsync(document)
+                .ConfigureAwait(false);
+
             var root = await organizedDocument.GetSyntaxRootAsync().ConfigureAwait(false);
             var rootCompilation = (CompilationUnitSyntax)root;
             var listOfUsings = rootCompilation.Usings;

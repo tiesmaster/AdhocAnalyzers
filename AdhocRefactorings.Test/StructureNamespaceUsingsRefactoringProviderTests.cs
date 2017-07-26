@@ -259,7 +259,7 @@ class Class1
 
         protected override CodeRefactoringProvider GetCodeRefactoringProvider()
         {
-            return new StructureNamespaceUsingsRefactoringProvider();
+            return new StructureNamespaceUsingsRefactoringProvider(null);
         }
     }
 }
