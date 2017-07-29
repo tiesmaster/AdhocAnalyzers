@@ -35,6 +35,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="AutoFixture\CreateToBuildRefactoringProvider.cs" />
     <Compile Include="Helpers\ReflectedRoslynWrappers.cs" />
     <Compile Include="Interfaces\IOrganizeImportsServiceWrapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -93,5 +94,6 @@
       <Private>False</Private>
     </Reference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
 </Project>

@@ -94,6 +94,7 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
+    <Compile Include="AutoFixture\CreateToBuildRefactoringProviderTests.cs" />
     <Compile Include="Helpers\CodeRefactoringVerifier.cs" />
     <Compile Include="Helpers\DocumentFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
