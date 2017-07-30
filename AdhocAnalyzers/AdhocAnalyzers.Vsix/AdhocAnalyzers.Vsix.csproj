@@ -52,7 +52,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\AdhocRefactorings\AdhocRefactorings\AdhocRefactorings.csproj">
+    <ProjectReference Include="..\..\AdhocRefactorings\AdhocRefactorings.csproj">
       <Project>{A9FA43AA-E052-4D46-8713-F999764813C4}</Project>
       <Name>AdhocRefactorings</Name>
       <IncludeOutputGroupsInVSIX>BuiltProjectOutputGroup%3bBuiltProjectOutputGroupDependencies%3bGetCopyToOutputDirectoryItems%3bSatelliteDllsProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>

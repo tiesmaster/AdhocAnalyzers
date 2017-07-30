@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdhocAnalyzers.Test", "Adho
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdhocAnalyzers.Vsix", "AdhocAnalyzers\AdhocAnalyzers.Vsix\AdhocAnalyzers.Vsix.csproj", "{2613C14B-B649-4D55-9164-BE100E93D3CA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdhocRefactorings", "AdhocRefactorings\AdhocRefactorings\AdhocRefactorings.csproj", "{A9FA43AA-E052-4D46-8713-F999764813C4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdhocRefactorings", "AdhocRefactorings\AdhocRefactorings.csproj", "{A9FA43AA-E052-4D46-8713-F999764813C4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdhocRefactorings.Test", "AdhocRefactorings.Test\AdhocRefactorings.Test.csproj", "{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}"
 EndProject

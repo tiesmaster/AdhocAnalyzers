@@ -108,7 +108,7 @@
     <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.1.0.0\analyzers\dotnet\cs\Microsoft.CodeAnalysis.CSharp.Analyzers.dll" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AdhocRefactorings\AdhocRefactorings\AdhocRefactorings.csproj">
+    <ProjectReference Include="..\AdhocRefactorings\AdhocRefactorings.csproj">
       <Project>{a9fa43aa-e052-4d46-8713-f999764813c4}</Project>
       <Name>AdhocRefactorings</Name>
     </ProjectReference>
