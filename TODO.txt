@@ -1,3 +1,16 @@
+IDEAS FOR ANAlYZERS/REFACTORINGS
+================================
+ * Violation on Build<...>.Create(), convert to simply call Create<...>
+ * Convert property to PRISM property
+ * Violation on SetProperty() with lambda [PRISM]
+ * Convert TestMethod to Fact
+	- also add ctor, and dispose methods, that call TestInitialize // TestCleanup method
+ * Convert DependencyProperty to ReadonlyDependencyProperty
+
+ * Violation on calling PRISM Activate, instead of calling ActivateAsync()
+
+===================================================================================================
+
 xunit.analyzers installeren
 
 add keyboard shortcut to this refactoring
