@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Composition;
 using System.Linq;
 using System.Threading.Tasks;
@@ -36,11 +37,27 @@ namespace AdhocRefactorings
             }
 
             var rootCompilation = (CompilationUnitSyntax)root;
-            var listOfUsings = rootCompilation.Usings;
+            var nodesMissingNewline = GetNodesMissingNewline(rootCompilation.Usings);
 
+            if (nodesMissingNewline.Any())
+            {
+                context.RegisterRefactoring(
+                    CodeAction.Create(
+                        "Add newline betweeen using groups",
+                        _ => AddNewlinesToNodes(context, context.Document, root, nodesMissingNewline)));
+
+                context.RegisterRefactoring(
+                    CodeAction.Create(
+                        "Remove unnecessary usings, and add newline betweeen using groups",
+                        _ => OrganizeImportsAndAddNewlinesToNodesAsync(context)));
+            }
+        }
+
+        private IEnumerable<SyntaxNode> GetNodesMissingNewline(SyntaxList<UsingDirectiveSyntax> listOfUsings)
+        {
             if (listOfUsings.Count < 2)
             {
-                return;
+                return Enumerable.Empty<SyntaxNode>();
             }
 
             var nodesMissingNewline = new List<SyntaxNode>();
@@ -55,19 +72,7 @@ namespace AdhocRefactorings
                 }
             }
 
-            if (nodesMissingNewline.Any())
-            {
-
-                context.RegisterRefactoring(
-                    CodeAction.Create(
-                        "Add newline betweeen using groups",
-                        _ => AddNewlinesToNodes(context, context.Document, root, nodesMissingNewline)));
-
-                context.RegisterRefactoring(
-                    CodeAction.Create(
-                        "Remove unnecessary usings, and add newline betweeen using groups",
-                        _ => OrganizeImportsAndAddNewlinesToNodesAsync(context)));
-            }
+            return nodesMissingNewline;
         }
 
         private static bool IsOutsideUsings(SyntaxNode root, TextSpan span)
@@ -123,8 +128,6 @@ namespace AdhocRefactorings
             return Task.FromResult(document.WithSyntaxRoot(newRoot));
         }
 
-        // TODO: merge this with ComputeRefactoringsAsync, and AddNewlinesToNodes
-
         private async Task<Document> OrganizeImportsAndAddNewlinesToNodesAsync(CodeRefactoringContext context)
         {
             var organizedDocument = await _organizeImportsServiceWrapper
@@ -133,24 +136,8 @@ namespace AdhocRefactorings
 
             var root = await organizedDocument.GetSyntaxRootAsync().ConfigureAwait(false);
             var rootCompilation = (CompilationUnitSyntax)root;
-            var listOfUsings = rootCompilation.Usings;
 
-            if (listOfUsings.Count < 2)
-            {
-                return organizedDocument;
-            }
-
-            var nodesMissingNewline = new List<SyntaxNode>();
-            for (int i = 1; i < listOfUsings.Count; i++)
-            {
-                var previousUsing = listOfUsings[i - 1];
-                var currentUsing = listOfUsings[i];
-
-                if (!TopLevelNamespaceEquals(previousUsing, currentUsing) && !HasLeadingNewline(currentUsing))
-                {
-                    nodesMissingNewline.Add(previousUsing);
-                }
-            }
+            var nodesMissingNewline = GetNodesMissingNewline(rootCompilation.Usings);
 
             if (nodesMissingNewline.Any())
             {
