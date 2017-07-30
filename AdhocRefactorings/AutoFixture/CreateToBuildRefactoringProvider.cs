@@ -30,10 +30,9 @@ namespace AdhocRefactorings.AutoFixture
                 return;
             }
 
-            // TODO: needed? || fixtureCreateMemberAccessNode.IsKind(SyntaxKind.SimpleMemberAccessExpression))
-
             var fixtureCreateMemberAccessNode = genericNode.Parent as MemberAccessExpressionSyntax;
-            if (fixtureCreateMemberAccessNode == null)
+            if (fixtureCreateMemberAccessNode == null
+                || !fixtureCreateMemberAccessNode.IsKind(SyntaxKind.SimpleMemberAccessExpression))
             {
                 return;
 
