@@ -90,7 +90,7 @@ namespace AdhocRefactorings.Test.AutoFixture
         [InlineData(14)]
         [InlineData(45)]
         [InlineData(117)]
-        public void NotAvailableOutsideInvocationLine(int position)
+        public void NotAvailableOutsideInvocationLine(int positionWithoutRefactoring)
         {
             var source =
 @"class Class1
@@ -101,7 +101,7 @@ namespace AdhocRefactorings.Test.AutoFixture
         fixture.Create<string>();
     }
 }";
-            VerifyNoRefactoring(source, position);
+            VerifyNoRefactoring(source, positionWithoutRefactoring);
         }
 
         [Fact]
@@ -163,7 +163,35 @@ namespace AdhocRefactorings.Test.AutoFixture
             VerifyNoRefactoring(source, 117);
         }
 
-        // TODO: add support for providing the refactoring for the entire line of "fixture...., until the end of it
+        [Theory]
+        [InlineData(100)]
+        [InlineData(90)]
+        [InlineData(112)]
+        [InlineData(113)]
+        [InlineData(82)]
+        public void AvailableOnEntireLine(int positionWithRefactoring)
+        {
+            var oldSource =
+@"class Class1
+{
+    void Method1()
+    {
+        var fixture = new Fixture();
+        fixture.Create<string>();
+    }
+}";
+            var newSource =
+@"class Class1
+{
+    void Method1()
+    {
+        var fixture = new Fixture();
+        fixture.Build<string>().Create();
+    }
+}";
+
+            VerifyRefactoring(oldSource, newSource, positionWithRefactoring, "Convert Create<...>() to Build<...>().Create()");
+        }
 
         protected override CodeRefactoringProvider GetCodeRefactoringProvider()
         {
