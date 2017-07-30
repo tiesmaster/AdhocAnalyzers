@@ -66,14 +66,5 @@ namespace AdhocRefactorings.AutoFixture
                         return Task.FromResult(context.Document.WithSyntaxRoot(newRoot));
                     }));
         }
-
-        private Task<Document> ConvertCreateToBuild(Document document, SyntaxNode root, SyntaxNode nodeToReplace, PredefinedTypeSyntax typeSyntax)
-        {
-            var newNode = SyntaxFactory
-                .ParseExpression($"fixture.Build<{typeSyntax.Keyword.ValueText}>().Create()")
-                .WithLeadingTrivia(nodeToReplace.GetLeadingTrivia());
-            root = root.ReplaceNode(nodeToReplace, newNode);
-            return Task.FromResult(document.WithSyntaxRoot(root));
-        }
     }
 }

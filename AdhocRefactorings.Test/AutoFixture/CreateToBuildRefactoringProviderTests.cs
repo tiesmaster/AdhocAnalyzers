@@ -1,4 +1,5 @@
-﻿using AdhocRefactorings.AutoFixture;
+﻿using System;
+using AdhocRefactorings.AutoFixture;
 using AdhocRefactorings.Test.Helpers;
 
 using Microsoft.CodeAnalysis.CodeRefactorings;
@@ -84,9 +85,85 @@ namespace AdhocRefactorings.Test.AutoFixture
             VerifyRefactoring(oldSource, newSource, 92, "Convert Create<...>() to Build<...>().Create()");
         }
 
-        // TODO: add support for providing the refactoring for the entire line of "fixture...., until the end of it
+        [Theory]
+        [InlineData(0)]
+        [InlineData(14)]
+        [InlineData(45)]
+        [InlineData(117)]
+        public void NotAvailableOutsideInvocationLine(int position)
+        {
+            var source =
+@"class Class1
+{
+    void Method1()
+    {
+        var fixture = new Fixture();
+        fixture.Create<string>();
+    }
+}";
+            VerifyNoRefactoring(source, position);
+        }
 
-        // TODO: add missing tests for scenario where we handle NOT providing the refactoring 
+        [Fact]
+        public void NotAvailableWithWrongGenericCreateMethod()
+        {
+            var source =
+@"class Class1
+{
+    void Method1()
+    {
+        var fixture = new Fixture();
+        fixture.Create<string, int>();
+    }
+}";
+            VerifyNoRefactoring(source, 100);
+        }
+
+        [Fact]
+        public void NotAvailableWithWrongMethodName()
+        {
+            var source =
+@"class Class1
+{
+    void Method1()
+    {
+        var fixture = new Fixture();
+        fixture.Foo<string>();
+    }
+}";
+            VerifyNoRefactoring(source, 100);
+        }
+
+        [Fact]
+        public void NotAvailableOnConstructors()
+        {
+            var source =
+@"class Class1
+{
+    void Method1()
+    {
+        new Create<string>();
+    }
+}";
+            VerifyNoRefactoring(source, 56);
+        }
+
+        [Fact]
+        public void NotAvailableOnIfCreateMethodIsNotInvoked()
+        {
+            var source =
+@"class Class1
+{
+    void Method1()
+    {
+        var fixture = new Fixture();
+        Func<string> foo = fixture.Create<string>;
+    }
+}";
+            VerifyNoRefactoring(source, 117);
+        }
+
+        // TODO: add support for providing the refactoring for the entire line of "fixture...., until the end of it
 
         protected override CodeRefactoringProvider GetCodeRefactoringProvider()
         {
