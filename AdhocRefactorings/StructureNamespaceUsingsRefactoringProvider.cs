@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Composition;
 using System.Linq;
 using System.Threading.Tasks;
@@ -53,26 +52,30 @@ namespace AdhocRefactorings
             }
         }
 
-        private IEnumerable<SyntaxNode> GetNodesMissingNewline(SyntaxList<UsingDirectiveSyntax> listOfUsings)
+        private IEnumerable<SyntaxNode> GetNodesMissingNewline(SyntaxList<UsingDirectiveSyntax> usings)
         {
-            if (listOfUsings.Count < 2)
+            if (usings.Count < 2)
             {
                 return Enumerable.Empty<SyntaxNode>();
             }
-
-            var nodesMissingNewline = new List<SyntaxNode>();
-            for (int i = 1; i < listOfUsings.Count; i++)
+            else
             {
-                var previousUsing = listOfUsings[i - 1];
-                var currentUsing = listOfUsings[i];
-
-                if (!TopLevelNamespaceEquals(previousUsing, currentUsing) && !HasLeadingNewline(currentUsing))
-                {
-                    nodesMissingNewline.Add(previousUsing);
-                }
+                return YieldNodesMissingNewline(usings);
             }
 
-            return nodesMissingNewline;
+            IEnumerable<SyntaxNode> YieldNodesMissingNewline(SyntaxList<UsingDirectiveSyntax> listOfUsings)
+            {
+                for (int i = 1; i < listOfUsings.Count; i++)
+                {
+                    var previousUsing = listOfUsings[i - 1];
+                    var currentUsing = listOfUsings[i];
+
+                    if (!TopLevelNamespaceEquals(previousUsing, currentUsing) && !HasLeadingNewline(currentUsing))
+                    {
+                        yield return previousUsing;
+                    }
+                }
+            }
         }
 
         private static bool IsOutsideUsings(SyntaxNode root, TextSpan span)
