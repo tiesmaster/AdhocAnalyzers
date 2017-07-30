@@ -1,14 +1,15 @@
 IDEAS FOR ANAlYZERS/REFACTORINGS
 ================================
 
- * Violation on Build<...>.Create(), convert to simply call Create<...>
- * Convert property to PRISM property
- * Violation on SetProperty() with lambda [PRISM]
- * Convert TestMethod to Fact
+ * AutoFixture: Convert Build<string>().With(...).Creat() to .Create<string>(), and drop all specimen customizations
+ * AutoFixture: Remove With(...) invocation ??
+ * PRISM: Convert property to PRISM property
+ * PRISM: Violation on SetProperty() with lambda
+ * XUNIT: Convert TestMethod to Fact
 	- also add ctor, and dispose methods, that call TestInitialize // TestCleanup method
- * Convert DependencyProperty to ReadonlyDependencyProperty
+ * WPF: Convert DependencyProperty to ReadonlyDependencyProperty
 
- * Violation on calling PRISM Activate, instead of calling ActivateAsync()
+ * PRISM: Violation on calling PRISM Activate, instead of calling ActivateAsync()
 
 ===================================================================================================
 
