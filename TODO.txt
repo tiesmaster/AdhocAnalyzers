@@ -1,5 +1,6 @@
 IDEAS FOR ANAlYZERS/REFACTORINGS
 ================================
+
  * Violation on Build<...>.Create(), convert to simply call Create<...>
  * Convert property to PRISM property
  * Violation on SetProperty() with lambda [PRISM]

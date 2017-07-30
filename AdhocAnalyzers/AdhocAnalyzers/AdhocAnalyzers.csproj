@@ -32,6 +32,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="AutoFixture\UnneededBuilderPatternAnalyzer.cs" />
+    <Compile Include="AutoFixture\UnneededBuilderPatternCodeFixProvider.cs" />
     <Compile Include="AutoMapperDeprecatedProfileAnalyzer.cs" />
     <Compile Include="AutoMapperDeprecatedProfileCodeFixProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
