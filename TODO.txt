@@ -11,8 +11,6 @@ IDEAS FOR ANAlYZERS/REFACTORINGS
 
 ===================================================================================================
 
-xunit.analyzers installeren
-
 add keyboard shortcut to this refactoring
 automatisch installeren bij build?
 
