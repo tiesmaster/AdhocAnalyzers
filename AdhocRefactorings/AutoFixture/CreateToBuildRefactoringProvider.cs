@@ -44,11 +44,11 @@ namespace AdhocRefactorings.AutoFixture
                 return;
             }
 
-            // TODO: update title of code action to something like Convert ".Create<string>()" to ".Build<string>().Create()"
-
+            var targetTypeName = genericArguments[0].ToString();
+            var title = $"Convert '.Create<{targetTypeName}>()' to '.Build<{targetTypeName}>().Create().";
             context.RegisterRefactoring(
                 CodeAction.Create(
-                    "Convert Create<...>() to Build<...>().Create()",
+                    title,
                     _ =>
                     {
                         var fixtureBuildMemberAccessNode =
