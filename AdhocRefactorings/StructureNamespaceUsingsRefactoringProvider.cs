@@ -2,7 +2,9 @@
 using System.Composition;
 using System.Linq;
 using System.Threading.Tasks;
+
 using AdhocRefactorings.Interfaces;
+
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeRefactorings;
@@ -55,17 +57,16 @@ namespace AdhocRefactorings
 
             if (nodesMissingNewline.Any())
             {
-                var newlineTrivia = GetNewlineTrivia(context);
 
                 context.RegisterRefactoring(
                     CodeAction.Create(
                         "Add newline betweeen using groups",
-                        _ => AddNewlinesToNodes(context.Document, root, nodesMissingNewline, newlineTrivia)));
+                        _ => AddNewlinesToNodes(context, context.Document, root, nodesMissingNewline)));
 
                 context.RegisterRefactoring(
                     CodeAction.Create(
                         "Remove unnecessary usings, and add newline betweeen using groups",
-                        _ => OrganizeImportsAndAddNewlinesToNodesAsync(context.Document, newlineTrivia)));
+                        _ => OrganizeImportsAndAddNewlinesToNodesAsync(context)));
             }
         }
 
@@ -111,23 +112,23 @@ namespace AdhocRefactorings
         }
 
         private Task<Document> AddNewlinesToNodes(
+            CodeRefactoringContext context,
             Document document,
             SyntaxNode root,
-            IEnumerable<SyntaxNode> nodesMissingNewline,
-            SyntaxTrivia newLineTrivia)
+            IEnumerable<SyntaxNode> nodesMissingNewline)
         {
+            var newLineTrivia = GetNewLineTrivia(context);
+
             var newRoot = root.ReplaceNodes(nodesMissingNewline, (oldNode, _) => AddTrailingNewline(oldNode, newLineTrivia));
             return Task.FromResult(document.WithSyntaxRoot(newRoot));
         }
 
         // TODO: merge this with ComputeRefactoringsAsync, and AddNewlinesToNodes
 
-        private async Task<Document> OrganizeImportsAndAddNewlinesToNodesAsync(
-            Document document,
-            SyntaxTrivia newLineTrivia)
+        private async Task<Document> OrganizeImportsAndAddNewlinesToNodesAsync(CodeRefactoringContext context)
         {
             var organizedDocument = await _organizeImportsServiceWrapper
-                .OrganizeImportsAsync(document)
+                .OrganizeImportsAsync(context.Document)
                 .ConfigureAwait(false);
 
             var root = await organizedDocument.GetSyntaxRootAsync().ConfigureAwait(false);
@@ -153,7 +154,7 @@ namespace AdhocRefactorings
 
             if (nodesMissingNewline.Any())
             {
-                return await AddNewlinesToNodes(organizedDocument, root, nodesMissingNewline, newLineTrivia).ConfigureAwait(false);
+                return await AddNewlinesToNodes(context, organizedDocument, root, nodesMissingNewline).ConfigureAwait(false);
             }
             else
             {
@@ -168,7 +169,7 @@ namespace AdhocRefactorings
             return node.WithTrailingTrivia(oldTrivia.Add(newLineTrivia));
         }
 
-        private static SyntaxTrivia GetNewlineTrivia(CodeRefactoringContext context)
+        private static SyntaxTrivia GetNewLineTrivia(CodeRefactoringContext context)
         {
             var workspace = context.Document.Project.Solution.Workspace;
             var newlineText = workspace.Options.GetOption(FormattingOptions.NewLine, LanguageNames.CSharp);
