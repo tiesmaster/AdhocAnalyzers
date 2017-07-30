@@ -1,4 +1,5 @@
 ﻿using System.Composition;
+using System.Linq;
 using System.Threading.Tasks;
 
 using Microsoft.CodeAnalysis;
@@ -18,7 +19,20 @@ namespace AdhocRefactorings.AutoFixture
 
             var currentNode = root.FindNode(context.Span);
 
-            var genericNode = currentNode as GenericNameSyntax;
+            var invocationNode = currentNode.AncestorsAndSelf().OfType<InvocationExpressionSyntax>().FirstOrDefault();
+            if (invocationNode == null)
+            {
+                return;
+            }
+
+            var fixtureCreateMemberAccessNode = invocationNode.Expression as MemberAccessExpressionSyntax;
+            if (fixtureCreateMemberAccessNode == null
+                || !fixtureCreateMemberAccessNode.IsKind(SyntaxKind.SimpleMemberAccessExpression))
+            {
+                return;
+            }
+
+            var genericNode = fixtureCreateMemberAccessNode.Name as GenericNameSyntax;
             if (genericNode == null || genericNode.Identifier.ValueText != "Create")
             {
                 return;
@@ -30,19 +44,7 @@ namespace AdhocRefactorings.AutoFixture
                 return;
             }
 
-            var fixtureCreateMemberAccessNode = genericNode.Parent as MemberAccessExpressionSyntax;
-            if (fixtureCreateMemberAccessNode == null
-                || !fixtureCreateMemberAccessNode.IsKind(SyntaxKind.SimpleMemberAccessExpression))
-            {
-                return;
-
-            }
-
-            var invocationNode = fixtureCreateMemberAccessNode.Parent as InvocationExpressionSyntax;
-            if (invocationNode == null)
-            {
-                return;
-            }
+            // TODO: update title of code action to something like Convert ".Create<string>()" to ".Build<string>().Create()"
 
             context.RegisterRefactoring(
                 CodeAction.Create(
