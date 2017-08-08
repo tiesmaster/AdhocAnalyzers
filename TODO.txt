@@ -13,6 +13,7 @@ IDEAS FOR ANAlYZERS/REFACTORINGS
 
 ===================================================================================================
 
+add .editorconfig (check https://github.com/MakingSense/code-style-guides/blob/master/CSharp/.editorconfig)
 add keyboard shortcut to this refactoring
 automatisch installeren bij build?
 
