@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Composition;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 using Microsoft.CodeAnalysis;
@@ -11,6 +8,7 @@ using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Formatting;
 
 namespace AdhocAnalyzers.AutoFixture
 {
@@ -28,14 +26,20 @@ namespace AdhocAnalyzers.AutoFixture
             var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
 
             var outerInvocationNode = (InvocationExpressionSyntax)root.FindNode(diagnosticsLocation.SourceSpan);
+            var innerInvocationNode =
+                (InvocationExpressionSyntax)((MemberAccessExpressionSyntax)outerInvocationNode.Expression).Expression;
 
-            var innerInvocationNode = (InvocationExpressionSyntax)((MemberAccessExpressionSyntax)outerInvocationNode.Expression).Expression;
+            var outerMemberAccessExpression = (MemberAccessExpressionSyntax)outerInvocationNode.Expression;
+            var innerMemberAccessExpression = (MemberAccessExpressionSyntax)innerInvocationNode.Expression;
 
             var buildIdentifierNode = innerInvocationNode.DescendantNodes().OfType<GenericNameSyntax>().Single();
-            var buildToken = buildIdentifierNode.Identifier;
-            var newInvocationNode = innerInvocationNode.ReplaceToken(buildToken, SyntaxFactory.Identifier("Create"));
 
-            var newRoot = root.ReplaceNode(outerInvocationNode, newInvocationNode);
+            var newOuter = outerMemberAccessExpression
+                .WithExpression(innerMemberAccessExpression.Expression)
+                .WithName(buildIdentifierNode.WithIdentifier(SyntaxFactory.Identifier("Create")))
+                .WithAdditionalAnnotations(Formatter.Annotation);
+
+            var newRoot = root.ReplaceNode(outerMemberAccessExpression, newOuter);
 
             var targetTypeName = buildIdentifierNode.TypeArgumentList.Arguments[0].ToString();
             var title = $"Simplify '.Build<{targetTypeName}>().Create()' to '.Create<{targetTypeName}>()'.";
@@ -46,4 +50,4 @@ namespace AdhocAnalyzers.AutoFixture
                 diagnostic);
         }
     }
-}   
+}

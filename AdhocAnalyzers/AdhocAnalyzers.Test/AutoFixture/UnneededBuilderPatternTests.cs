@@ -26,7 +26,7 @@ namespace AdhocAnalyzers.Test.AutoFixture
         }
 
         [Fact]
-        public void BuildWithKeywordType()
+        public void BuildAndCreateOnOneLine()
         {
             var oldSource =
 @"class Class1
@@ -35,6 +35,44 @@ namespace AdhocAnalyzers.Test.AutoFixture
     {
         var fixture = new Fixture();
         fixture.Build<string>().Create();
+    }
+}";
+            var newSource =
+@"class Class1
+{
+    void Method1()
+    {
+        var fixture = new Fixture();
+        fixture.Create<string>();
+    }
+}";
+
+            var expected = new DiagnosticResult
+            {
+                Id = "AF0001",
+                Message = "Build<string>() directly followed by Create() can be simplified",
+                Severity = DiagnosticSeverity.Warning,
+                Locations =
+                    new[] {
+                            new DiagnosticResultLocation("Test0.cs", 6, 9)
+                        }
+            };
+
+            VerifyCSharpDiagnostic(oldSource, expected);
+            VerifyCSharpFix(oldSource, newSource, allowNewCompilerDiagnostics: false);
+        }
+
+        [Fact]
+        public void BuildAndCreateOnMultipleLines()
+        {
+            var oldSource =
+@"class Class1
+{
+    void Method1()
+    {
+        var fixture = new Fixture();
+        fixture.Build<string>()
+               .Create();
     }
 }";
             var newSource =
