@@ -19,5 +19,5 @@ automatisch installeren bij build?
 
 uitzoeken naar welke versie ik de packages kan upgraden
 
-copy in roslyn cursor testhelpers, and change test data to use that,
+copy in roslyn cursor testhelpers, and change test data to use that (MarkupTestFile)
 	and add support in VerifyRefactorings to check that outside the expected "hotzone" no refactorings are given
