@@ -193,9 +193,6 @@ namespace AdhocRefactorings.Test.AutoFixture
             VerifyRefactoring(oldSource, newSource, positionWithRefactoring, "Convert '.Create<string>()' to '.Build<string>().Create().");
         }
 
-        protected override CodeRefactoringProvider GetCodeRefactoringProvider()
-        {
-            return new CreateToBuildRefactoringProvider();
-        }
+        protected override CodeRefactoringProvider GetCodeRefactoringProvider() => new CreateToBuildRefactoringProvider();
     }
 }

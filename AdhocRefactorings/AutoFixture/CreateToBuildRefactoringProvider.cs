@@ -10,7 +10,8 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace AdhocRefactorings.AutoFixture
 {
-    [ExportCodeRefactoringProvider(LanguageNames.CSharp, Name = nameof(CreateToBuildRefactoringProvider)), Shared]
+    [ExportCodeRefactoringProvider(LanguageNames.CSharp, Name = nameof(CreateToBuildRefactoringProvider))]
+    [Shared]
     public class CreateToBuildRefactoringProvider : CodeRefactoringProvider
     {
         public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
