@@ -28,18 +28,52 @@ namespace TestHelper
 
         protected void VerifyDiagnostic(string source, params DiagnosticResult[] expected)
         {
-            VerifyDiagnostics(new[] { source }, LanguageNames.CSharp, GetDiagnosticAnalyzer(), expected);
-        }
-
-        private void VerifyDiagnostics(
-            string[] sources,
-            string language,
-            DiagnosticAnalyzer analyzer,
-            params DiagnosticResult[] expected)
-        {
-            var diagnostics = GetSortedDiagnostics(sources, language, analyzer);
+            var analyzer = GetDiagnosticAnalyzer();
+            var diagnostics = GetSortedDiagnosticsFromDocuments(analyzer, GetDocuments(source));
             VerifyDiagnosticResults(diagnostics, analyzer, expected);
         }
+
+        protected static Diagnostic[] GetSortedDiagnosticsFromDocuments(DiagnosticAnalyzer analyzer, Document[] documents)
+        {
+            var projects = new HashSet<Project>();
+            foreach (var document in documents)
+            {
+                projects.Add(document.Project);
+            }
+
+            var diagnostics = new List<Diagnostic>();
+            foreach (var project in projects)
+            {
+                var compilationWithAnalyzers = project.GetCompilationAsync().Result.WithAnalyzers(ImmutableArray.Create(analyzer));
+                var diags = compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync().Result;
+                foreach (var diag in diags)
+                {
+                    if (diag.Location == Location.None || diag.Location.IsInMetadata)
+                    {
+                        diagnostics.Add(diag);
+                    }
+                    else
+                    {
+                        for (int i = 0; i < documents.Length; i++)
+                        {
+                            var document = documents[i];
+                            var tree = document.GetSyntaxTreeAsync().Result;
+                            if (tree == diag.Location.SourceTree)
+                            {
+                                diagnostics.Add(diag);
+                            }
+                        }
+                    }
+                }
+            }
+
+            var results = SortDiagnostics(diagnostics);
+            diagnostics.Clear();
+            return results;
+        }
+
+        private static Diagnostic[] SortDiagnostics(IEnumerable<Diagnostic> diagnostics)
+            => diagnostics.OrderBy(d => d.Location.SourceSpan.Start).ToArray();
 
         private static void VerifyDiagnosticResults(
             IEnumerable<Diagnostic> actualResults,
@@ -215,63 +249,9 @@ namespace TestHelper
             return builder.ToString();
         }
 
-        private static Diagnostic[] GetSortedDiagnostics(string[] sources, string language, DiagnosticAnalyzer analyzer)
+        private static Document[] GetDocuments(params string[] sources)
         {
-            return GetSortedDiagnosticsFromDocuments(analyzer, GetDocuments(sources, language));
-        }
-
-        protected static Diagnostic[] GetSortedDiagnosticsFromDocuments(DiagnosticAnalyzer analyzer, Document[] documents)
-        {
-            var projects = new HashSet<Project>();
-            foreach (var document in documents)
-            {
-                projects.Add(document.Project);
-            }
-
-            var diagnostics = new List<Diagnostic>();
-            foreach (var project in projects)
-            {
-                var compilationWithAnalyzers = project.GetCompilationAsync().Result.WithAnalyzers(ImmutableArray.Create(analyzer));
-                var diags = compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync().Result;
-                foreach (var diag in diags)
-                {
-                    if (diag.Location == Location.None || diag.Location.IsInMetadata)
-                    {
-                        diagnostics.Add(diag);
-                    }
-                    else
-                    {
-                        for (int i = 0; i < documents.Length; i++)
-                        {
-                            var document = documents[i];
-                            var tree = document.GetSyntaxTreeAsync().Result;
-                            if (tree == diag.Location.SourceTree)
-                            {
-                                diagnostics.Add(diag);
-                            }
-                        }
-                    }
-                }
-            }
-
-            var results = SortDiagnostics(diagnostics);
-            diagnostics.Clear();
-            return results;
-        }
-
-        private static Diagnostic[] SortDiagnostics(IEnumerable<Diagnostic> diagnostics)
-        {
-            return diagnostics.OrderBy(d => d.Location.SourceSpan.Start).ToArray();
-        }
-
-        private static Document[] GetDocuments(string[] sources, string language)
-        {
-            if (language != LanguageNames.CSharp)
-            {
-                throw new ArgumentException("Unsupported Language");
-            }
-
-            var project = CreateProject(sources, language);
+            var project = CreateProject(sources);
             var documents = project.Documents.ToArray();
 
             if (sources.Length != documents.Length)
@@ -282,12 +262,7 @@ namespace TestHelper
             return documents;
         }
 
-        protected static Document CreateDocument(string source, string language = LanguageNames.CSharp)
-        {
-            return CreateProject(new[] { source }, language).Documents.First();
-        }
-
-        private static Project CreateProject(string[] sources, string language = LanguageNames.CSharp)
+        protected static Project CreateProject(params string[] sources)
         {
             string fileNamePrefix = DefaultFilePathPrefix;
             string fileExt = CSharpDefaultFileExt;
@@ -296,7 +271,7 @@ namespace TestHelper
 
             var solution = new AdhocWorkspace()
                 .CurrentSolution
-                .AddProject(projectId, TestProjectName, TestProjectName, language)
+                .AddProject(projectId, TestProjectName, TestProjectName, LanguageNames.CSharp)
                 .AddMetadataReference(projectId, CorlibReference)
                 .AddMetadataReference(projectId, SystemCoreReference)
                 .AddMetadataReference(projectId, CSharpSymbolsReference)

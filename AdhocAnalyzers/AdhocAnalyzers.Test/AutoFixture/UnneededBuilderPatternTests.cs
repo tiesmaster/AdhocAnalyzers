@@ -101,6 +101,6 @@ namespace AdhocAnalyzers.Test.AutoFixture
         }
 
         protected override DiagnosticAnalyzer GetDiagnosticAnalyzer() => new UnneededBuilderPatternAnalyzer();
-        protected override CodeFixProvider GetCSharpCodeFixProvider() => new UnneededBuilderPatternCodeFixProvider();
+        protected override CodeFixProvider GetCodeFixProvider() => new UnneededBuilderPatternCodeFixProvider();
     }
 }

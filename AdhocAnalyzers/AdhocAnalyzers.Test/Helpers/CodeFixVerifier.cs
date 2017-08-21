@@ -5,7 +5,6 @@ using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
-using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.Simplification;
 
@@ -15,7 +14,7 @@ namespace TestHelper
 {
     public abstract class CodeFixVerifier : DiagnosticVerifier
     {
-        protected abstract CodeFixProvider GetCSharpCodeFixProvider();
+        protected abstract CodeFixProvider GetCodeFixProvider();
 
         protected void VerifyFix(
             string oldSource,
@@ -23,26 +22,10 @@ namespace TestHelper
             int? codeFixIndex = null,
             bool allowNewCompilerDiagnostics = false)
         {
-            VerifyFix(
-                LanguageNames.CSharp,
-                GetDiagnosticAnalyzer(),
-                GetCSharpCodeFixProvider(),
-                oldSource,
-                newSource,
-                codeFixIndex,
-                allowNewCompilerDiagnostics);
-        }
+            var analyzer = GetDiagnosticAnalyzer();
+            var codeFixProvider = GetCodeFixProvider();
 
-        private void VerifyFix(
-            string language,
-            DiagnosticAnalyzer analyzer,
-            CodeFixProvider codeFixProvider,
-            string oldSource,
-            string newSource,
-            int? codeFixIndex,
-            bool allowNewCompilerDiagnostics)
-        {
-            var document = CreateDocument(oldSource, language);
+            var document = CreateProject(oldSource).Documents.First();
             var analyzerDiagnostics = GetSortedDiagnosticsFromDocuments(analyzer, new[] { document });
             var compilerDiagnostics = GetCompilerDiagnostics(document);
             var attempts = analyzerDiagnostics.Length;
@@ -131,9 +114,7 @@ namespace TestHelper
         }
 
         private static IEnumerable<Diagnostic> GetCompilerDiagnostics(Document document)
-        {
-            return document.GetSemanticModelAsync().Result.GetDiagnostics();
-        }
+            => document.GetSemanticModelAsync().Result.GetDiagnostics();
 
         private static string GetStringFromDocument(Document document)
         {
