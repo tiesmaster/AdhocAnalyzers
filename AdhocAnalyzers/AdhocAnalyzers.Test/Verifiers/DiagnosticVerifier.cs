@@ -11,35 +11,44 @@ namespace TestHelper
 {
     public abstract partial class DiagnosticVerifier
     {
-        protected abstract DiagnosticAnalyzer GetCSharpDiagnosticAnalyzer();
+        protected abstract DiagnosticAnalyzer GetDiagnosticAnalyzer();
 
-        protected void VerifyCSharpDiagnostic(string source, params DiagnosticResult[] expected)
+        protected void VerifyDiagnostic(string source, params DiagnosticResult[] expected)
         {
-            VerifyDiagnostics(new[] { source }, LanguageNames.CSharp, GetCSharpDiagnosticAnalyzer(), expected);
+            VerifyDiagnostics(new[] { source }, LanguageNames.CSharp, GetDiagnosticAnalyzer(), expected);
         }
 
-        protected void VerifyCSharpDiagnostic(string[] sources, params DiagnosticResult[] expected)
-        {
-            VerifyDiagnostics(sources, LanguageNames.CSharp, GetCSharpDiagnosticAnalyzer(), expected);
-        }
-
-        private void VerifyDiagnostics(string[] sources, string language, DiagnosticAnalyzer analyzer, params DiagnosticResult[] expected)
+        private void VerifyDiagnostics(
+            string[] sources,
+            string language,
+            DiagnosticAnalyzer analyzer,
+            params DiagnosticResult[] expected)
         {
             var diagnostics = GetSortedDiagnostics(sources, language, analyzer);
             VerifyDiagnosticResults(diagnostics, analyzer, expected);
         }
 
-        private static void VerifyDiagnosticResults(IEnumerable<Diagnostic> actualResults, DiagnosticAnalyzer analyzer, params DiagnosticResult[] expectedResults)
+        private static void VerifyDiagnosticResults(
+            IEnumerable<Diagnostic> actualResults,
+            DiagnosticAnalyzer analyzer,
+            params DiagnosticResult[] expectedResults)
         {
             int expectedCount = expectedResults.Count();
             int actualCount = actualResults.Count();
 
             if (expectedCount != actualCount)
             {
-                string diagnosticsOutput = actualResults.Any() ? FormatDiagnostics(analyzer, actualResults.ToArray()) : "    NONE.";
+                string diagnosticsOutput = actualResults.Any()
+                    ? FormatDiagnostics(analyzer, actualResults.ToArray())
+                    : "    NONE.";
 
                 Assert.True(false,
-                    string.Format("Mismatch between number of diagnostics returned, expected \"{0}\" actual \"{1}\"\r\n\r\nDiagnostics:\r\n{2}\r\n", expectedCount, actualCount, diagnosticsOutput));
+                    string.Format(
+                        "Mismatch between number of diagnostics returned, " +
+                            "expected \"{0}\" actual \"{1}\"\r\n\r\nDiagnostics:\r\n{2}\r\n",
+                        expectedCount,
+                        actualCount,
+                        diagnosticsOutput));
             }
 
             for (int i = 0; i < expectedResults.Length; i++)
@@ -98,12 +107,21 @@ namespace TestHelper
             }
         }
 
-        private static void VerifyDiagnosticLocation(DiagnosticAnalyzer analyzer, Diagnostic diagnostic, Location actual, DiagnosticResultLocation expected)
+        private static void VerifyDiagnosticLocation(
+            DiagnosticAnalyzer analyzer,
+            Diagnostic diagnostic,
+            Location actual,
+            DiagnosticResultLocation expected)
         {
             var actualSpan = actual.GetLineSpan();
 
-            Assert.True(actualSpan.Path == expected.Path || (actualSpan.Path != null && actualSpan.Path.Contains("Test0.") && expected.Path.Contains("Test.")),
-                string.Format("Expected diagnostic to be in file \"{0}\" was actually in file \"{1}\"\r\n\r\nDiagnostic:\r\n    {2}\r\n",
+            Assert.True(
+                actualSpan.Path == expected.Path
+                || (actualSpan.Path != null
+                    && actualSpan.Path.Contains("Test0.")
+                    && expected.Path.Contains("Test.")),
+                string.Format("Expected diagnostic to be in file \"{0}\" was actually in file \"{1}\"\r\n\r\n" +
+                    "Diagnostic:\r\n    {2}\r\n",
                     expected.Path, actualSpan.Path, FormatDiagnostics(analyzer, diagnostic)));
 
             var actualLinePosition = actualSpan.StartLinePosition;
@@ -114,7 +132,8 @@ namespace TestHelper
                 if (actualLinePosition.Line + 1 != expected.Line)
                 {
                     Assert.True(false,
-                        string.Format("Expected diagnostic to be on line \"{0}\" was actually on line \"{1}\"\r\n\r\nDiagnostic:\r\n    {2}\r\n",
+                        string.Format("Expected diagnostic to be on line \"{0}\" was actually on line \"{1}\"" +
+                        "\r\n\r\nDiagnostic:\r\n    {2}\r\n",
                             expected.Line, actualLinePosition.Line + 1, FormatDiagnostics(analyzer, diagnostic)));
                 }
             }
@@ -125,7 +144,8 @@ namespace TestHelper
                 if (actualLinePosition.Character + 1 != expected.Column)
                 {
                     Assert.True(false,
-                        string.Format("Expected diagnostic to start at column \"{0}\" was actually at column \"{1}\"\r\n\r\nDiagnostic:\r\n    {2}\r\n",
+                        string.Format("Expected diagnostic to start at column \"{0}\" was actually at column \"{1}\"" +
+                        "\r\n\r\nDiagnostic:\r\n    {2}\r\n",
                             expected.Column, actualLinePosition.Character + 1, FormatDiagnostics(analyzer, diagnostic)));
                 }
             }
@@ -153,9 +173,12 @@ namespace TestHelper
                         else
                         {
                             Assert.True(location.IsInSource,
-                                $"Test base does not currently handle diagnostics in metadata locations. Diagnostic in metadata: {diagnostics[i]}\r\n");
+                                $"Test base does not currently handle diagnostics in metadata locations. " +
+                                $"Diagnostic in metadata: {diagnostics[i]}\r\n");
 
-                            string resultMethodName = diagnostics[i].Location.SourceTree.FilePath.EndsWith(".cs") ? "GetCSharpResultAt" : "GetBasicResultAt";
+                            string resultMethodName = diagnostics[i].Location.SourceTree.FilePath.EndsWith(".cs")
+                                ? "GetCSharpResultAt"
+                                : "GetBasicResultAt";
                             var linePosition = diagnostics[i].Location.GetLineSpan().StartLinePosition;
 
                             builder.AppendFormat("{0}({1}, {2}, {3}.{4})",

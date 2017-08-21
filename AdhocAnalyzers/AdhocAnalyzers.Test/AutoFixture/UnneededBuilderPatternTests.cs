@@ -22,7 +22,7 @@ namespace AdhocAnalyzers.Test.AutoFixture
         {
             var test = "";
 
-            VerifyCSharpDiagnostic(test);
+            VerifyDiagnostic(test);
         }
 
         [Fact]
@@ -58,7 +58,7 @@ namespace AdhocAnalyzers.Test.AutoFixture
                         }
             };
 
-            VerifyCSharpDiagnostic(oldSource, expected);
+            VerifyDiagnostic(oldSource, expected);
             VerifyCSharpFix(oldSource, newSource, allowNewCompilerDiagnostics: false);
         }
 
@@ -96,11 +96,11 @@ namespace AdhocAnalyzers.Test.AutoFixture
                         }
             };
 
-            VerifyCSharpDiagnostic(oldSource, expected);
+            VerifyDiagnostic(oldSource, expected);
             VerifyCSharpFix(oldSource, newSource, allowNewCompilerDiagnostics: false);
         }
 
-        protected override DiagnosticAnalyzer GetCSharpDiagnosticAnalyzer() => new UnneededBuilderPatternAnalyzer();
+        protected override DiagnosticAnalyzer GetDiagnosticAnalyzer() => new UnneededBuilderPatternAnalyzer();
         protected override CodeFixProvider GetCSharpCodeFixProvider() => new UnneededBuilderPatternCodeFixProvider();
     }
 }
