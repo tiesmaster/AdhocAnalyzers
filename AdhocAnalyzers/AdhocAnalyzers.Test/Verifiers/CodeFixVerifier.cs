@@ -16,12 +16,30 @@ namespace TestHelper
     {
         protected abstract CodeFixProvider GetCSharpCodeFixProvider();
 
-        protected void VerifyCSharpFix(string oldSource, string newSource, int? codeFixIndex = null, bool allowNewCompilerDiagnostics = false)
+        protected void VerifyFix(
+            string oldSource,
+            string newSource,
+            int? codeFixIndex = null,
+            bool allowNewCompilerDiagnostics = false)
         {
-            VerifyFix(LanguageNames.CSharp, GetDiagnosticAnalyzer(), GetCSharpCodeFixProvider(), oldSource, newSource, codeFixIndex, allowNewCompilerDiagnostics);
+            VerifyFix(
+                LanguageNames.CSharp,
+                GetDiagnosticAnalyzer(),
+                GetCSharpCodeFixProvider(),
+                oldSource,
+                newSource,
+                codeFixIndex,
+                allowNewCompilerDiagnostics);
         }
 
-        private void VerifyFix(string language, DiagnosticAnalyzer analyzer, CodeFixProvider codeFixProvider, string oldSource, string newSource, int? codeFixIndex, bool allowNewCompilerDiagnostics)
+        private void VerifyFix(
+            string language,
+            DiagnosticAnalyzer analyzer,
+            CodeFixProvider codeFixProvider,
+            string oldSource,
+            string newSource,
+            int? codeFixIndex,
+            bool allowNewCompilerDiagnostics)
         {
             var document = CreateDocument(oldSource, language);
             var analyzerDiagnostics = GetSortedDiagnosticsFromDocuments(analyzer, new[] { document });
@@ -31,7 +49,11 @@ namespace TestHelper
             for (int i = 0; i < attempts; ++i)
             {
                 var actions = new List<CodeAction>();
-                var context = new CodeFixContext(document, analyzerDiagnostics[0], (a, d) => actions.Add(a), CancellationToken.None);
+                var context = new CodeFixContext(
+                    document,
+                    analyzerDiagnostics[0],
+                    (a, d) => actions.Add(a),
+                    CancellationToken.None);
                 codeFixProvider.RegisterCodeFixesAsync(context).Wait();
 
                 if (!actions.Any())
@@ -54,7 +76,8 @@ namespace TestHelper
                 if (!allowNewCompilerDiagnostics && newCompilerDiagnostics.Any())
                 {
                     // Format and get the compiler diagnostics again so that the locations make sense in the output
-                    document = document.WithSyntaxRoot(Formatter.Format(document.GetSyntaxRootAsync().Result, Formatter.Annotation, document.Project.Solution.Workspace));
+                    document = document.WithSyntaxRoot(
+                        Formatter.Format(document.GetSyntaxRootAsync().Result, Formatter.Annotation, document.Project.Solution.Workspace));
                     newCompilerDiagnostics = GetNewDiagnostics(compilerDiagnostics, GetCompilerDiagnostics(document));
 
                     Assert.True(false,

@@ -18,7 +18,9 @@ namespace TestHelper
             return solution.GetDocument(document.Id);
         }
 
-        private static IEnumerable<Diagnostic> GetNewDiagnostics(IEnumerable<Diagnostic> diagnostics, IEnumerable<Diagnostic> newDiagnostics)
+        private static IEnumerable<Diagnostic> GetNewDiagnostics(
+            IEnumerable<Diagnostic> diagnostics,
+            IEnumerable<Diagnostic> newDiagnostics)
         {
             var oldArray = diagnostics.OrderBy(d => d.Location.SourceSpan.Start).ToArray();
             var newArray = newDiagnostics.OrderBy(d => d.Location.SourceSpan.Start).ToArray();
