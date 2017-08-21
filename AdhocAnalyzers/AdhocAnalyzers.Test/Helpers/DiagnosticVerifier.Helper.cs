@@ -19,7 +19,6 @@ namespace TestHelper
 
         internal static string DefaultFilePathPrefix = "Test";
         internal static string CSharpDefaultFileExt = "cs";
-        internal static string VisualBasicDefaultExt = "vb";
         internal static string TestProjectName = "TestProject";
 
         private static Diagnostic[] GetSortedDiagnostics(string[] sources, string language, DiagnosticAnalyzer analyzer)
@@ -73,7 +72,7 @@ namespace TestHelper
 
         private static Document[] GetDocuments(string[] sources, string language)
         {
-            if (language != LanguageNames.CSharp && language != LanguageNames.VisualBasic)
+            if (language != LanguageNames.CSharp)
             {
                 throw new ArgumentException("Unsupported Language");
             }
@@ -97,7 +96,7 @@ namespace TestHelper
         private static Project CreateProject(string[] sources, string language = LanguageNames.CSharp)
         {
             string fileNamePrefix = DefaultFilePathPrefix;
-            string fileExt = language == LanguageNames.CSharp ? CSharpDefaultFileExt : VisualBasicDefaultExt;
+            string fileExt = CSharpDefaultFileExt;
 
             var projectId = ProjectId.CreateNewId(debugName: TestProjectName);
 
