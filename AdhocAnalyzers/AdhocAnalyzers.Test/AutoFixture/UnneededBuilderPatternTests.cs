@@ -53,7 +53,7 @@ namespace AdhocAnalyzers.Test.AutoFixture
             };
 
             VerifyDiagnostic(oldSource, expected);
-            VerifyFix(oldSource, newSource, allowNewCompilerDiagnostics: false);
+            VerifyFix(oldSource, newSource);
         }
 
         [Fact]
@@ -91,7 +91,7 @@ namespace AdhocAnalyzers.Test.AutoFixture
             };
 
             VerifyDiagnostic(oldSource, expected);
-            VerifyFix(oldSource, newSource, allowNewCompilerDiagnostics: false);
+            VerifyFix(oldSource, newSource);
         }
 
         protected override DiagnosticAnalyzer GetDiagnosticAnalyzer() => new UnneededBuilderPatternAnalyzer();

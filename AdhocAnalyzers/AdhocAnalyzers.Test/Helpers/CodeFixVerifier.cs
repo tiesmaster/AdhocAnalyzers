@@ -1,11 +1,9 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
-using Microsoft.CodeAnalysis.Formatting;
 
 using Xunit;
 
@@ -15,62 +13,17 @@ namespace AdhocAnalyzers.Test.Helpers
     {
         protected abstract CodeFixProvider GetCodeFixProvider();
 
-        protected void VerifyFix(
-            string oldSource,
-            string newSource,
-            int? codeFixIndex = null,
-            bool allowNewCompilerDiagnostics = false)
+        protected void VerifyFix(string oldSource, string newSource)
         {
             var analyzer = GetDiagnosticAnalyzer();
             var codeFixProvider = GetCodeFixProvider();
 
             var document = DocumentFactory.CreateDocument(oldSource);
             var analyzerDiagnostics = GetSortedDiagnosticsFromDocuments(analyzer, document);
-            var compilerDiagnostics = GetCompilerDiagnostics(document);
-            var attempts = analyzerDiagnostics.Length;
 
-            for (int i = 0; i < attempts; ++i)
-            {
-                var actions = GetCodeActions(document, codeFixProvider, analyzerDiagnostics[0]);
+            var actions = GetCodeActions(document, codeFixProvider, analyzerDiagnostics[0]);
+            document = document.ApplyCodeAction(actions[0]);
 
-                if (!actions.Any())
-                {
-                    break;
-                }
-
-                if (codeFixIndex != null)
-                {
-                    document = document.ApplyCodeAction(actions[(int)codeFixIndex]);
-                    break;
-                }
-
-                document = document.ApplyCodeAction(actions[0]);
-                analyzerDiagnostics = GetSortedDiagnosticsFromDocuments(analyzer, document);
-
-                var newCompilerDiagnostics = GetNewDiagnostics(compilerDiagnostics, GetCompilerDiagnostics(document));
-
-                //check if applying the code fix introduced any new compiler diagnostics
-                if (!allowNewCompilerDiagnostics && newCompilerDiagnostics.Any())
-                {
-                    // Format and get the compiler diagnostics again so that the locations make sense in the output
-                    document = document.WithSyntaxRoot(
-                        Formatter.Format(document.GetSyntaxRootAsync().Result, Formatter.Annotation, document.Project.Solution.Workspace));
-                    newCompilerDiagnostics = GetNewDiagnostics(compilerDiagnostics, GetCompilerDiagnostics(document));
-
-                    Assert.True(false,
-                        string.Format("Fix introduced new compiler diagnostics:\r\n{0}\r\n\r\nNew document:\r\n{1}\r\n",
-                            string.Join("\r\n", newCompilerDiagnostics.Select(d => d.ToString())),
-                            document.GetSyntaxRootAsync().Result.ToFullString()));
-                }
-
-                //check if there are analyzer diagnostics left after the code fix
-                if (!analyzerDiagnostics.Any())
-                {
-                    break;
-                }
-            }
-
-            //after applying all of the code fixes, compare the resulting string to the inputted one
             var actual = document.ToStringAndFormat();
             Assert.Equal(newSource, actual);
         }
@@ -83,32 +36,5 @@ namespace AdhocAnalyzers.Test.Helpers
 
             return actions;
         }
-
-        private static IEnumerable<Diagnostic> GetNewDiagnostics(
-            IEnumerable<Diagnostic> diagnostics,
-            IEnumerable<Diagnostic> newDiagnostics)
-        {
-            var oldArray = diagnostics.OrderBy(d => d.Location.SourceSpan.Start).ToArray();
-            var newArray = newDiagnostics.OrderBy(d => d.Location.SourceSpan.Start).ToArray();
-
-            int oldIndex = 0;
-            int newIndex = 0;
-
-            while (newIndex < newArray.Length)
-            {
-                if (oldIndex < oldArray.Length && oldArray[oldIndex].Id == newArray[newIndex].Id)
-                {
-                    ++oldIndex;
-                    ++newIndex;
-                }
-                else
-                {
-                    yield return newArray[newIndex++];
-                }
-            }
-        }
-
-        private static IEnumerable<Diagnostic> GetCompilerDiagnostics(Document document)
-            => document.GetSemanticModelAsync().Result.GetDiagnostics();
     }
 }
