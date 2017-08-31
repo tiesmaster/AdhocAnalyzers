@@ -81,7 +81,7 @@ namespace AdhocRefactorings.Test.Helpers
             DiagnosticAnalyzer analyzer,
             params DiagnosticResult[] expectedResults)
         {
-            int expectedCount = expectedResults.Count();
+            int expectedCount = expectedResults.Length;
             int actualCount = actualResults.Count();
 
             if (expectedCount != actualCount)
