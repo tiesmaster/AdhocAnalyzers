@@ -31,13 +31,7 @@ namespace AdhocAnalyzers.Test.Helpers
 
             for (int i = 0; i < attempts; ++i)
             {
-                var actions = new List<CodeAction>();
-                var context = new CodeFixContext(
-                    document,
-                    analyzerDiagnostics[0],
-                    (a, d) => actions.Add(a),
-                    CancellationToken.None);
-                codeFixProvider.RegisterCodeFixesAsync(context).Wait();
+                var actions = GetCodeActions(document, codeFixProvider, analyzerDiagnostics[0]);
 
                 if (!actions.Any())
                 {
@@ -79,6 +73,15 @@ namespace AdhocAnalyzers.Test.Helpers
             //after applying all of the code fixes, compare the resulting string to the inputted one
             var actual = document.ToStringAndFormat();
             Assert.Equal(newSource, actual);
+        }
+
+        private List<CodeAction> GetCodeActions(Document document, CodeFixProvider codeFixProvider, Diagnostic diagnostic)
+        {
+            var actions = new List<CodeAction>();
+            var context = new CodeFixContext(document, diagnostic, (a, d) => actions.Add(a), CancellationToken.None);
+            codeFixProvider.RegisterCodeFixesAsync(context).Wait();
+
+            return actions;
         }
 
         private static IEnumerable<Diagnostic> GetNewDiagnostics(
