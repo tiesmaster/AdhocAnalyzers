@@ -1,8 +1,10 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.Simplification;
 
@@ -24,6 +26,15 @@ namespace AdhocAnalyzers.Test.Helpers
             var solution = operations.OfType<ApplyChangesOperation>().Single().ChangedSolution;
 
             return solution.GetDocument(document.Id);
+        }
+
+        public static List<CodeAction> GetCodeActions(this CodeFixProvider codeFixProvider, Document document, Diagnostic diagnostic)
+        {
+            var actions = new List<CodeAction>();
+            var context = new CodeFixContext(document, diagnostic, (a, d) => actions.Add(a), CancellationToken.None);
+            codeFixProvider.RegisterCodeFixesAsync(context).Wait();
+
+            return actions;
         }
     }
 }
