@@ -17,5 +17,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Remove="*.v2.ncrunchproject" />
+    <None Remove="*.v3.ncrunchproject" />
   </ItemGroup>
 </Project>
