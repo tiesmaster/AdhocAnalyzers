@@ -1,11 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
+﻿using System.Linq;
 
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeRefactorings;
-using Microsoft.CodeAnalysis.Text;
 
 using Xunit;
 
@@ -18,7 +13,7 @@ namespace AdhocAnalyzers.Test.Helpers
         protected void VerifyNoRefactoring(string source, int position)
         {
             var document = DocumentFactory.CreateDocument(source);
-            var actions = GetCodeActions(document, position);
+            var actions = GetCodeRefactoringProvider().GetCodeActions(document, position);
             Assert.Empty(actions);
         }
 
@@ -26,24 +21,13 @@ namespace AdhocAnalyzers.Test.Helpers
         {
             var document = DocumentFactory.CreateDocument(oldSource);
 
-            var actions = GetCodeActions(document, position);
+            var actions = GetCodeRefactoringProvider().GetCodeActions(document, position);
 
             var codeActionToApply = actions.Single(action => action.Title == codeActionTitle);
             document = document.ApplyCodeAction(codeActionToApply);
 
             var actual = document.ToStringAndFormat();
             Assert.Equal(newSource, actual);
-        }
-
-        private List<CodeAction> GetCodeActions(Document document, int position)
-        {
-            var codeRefactoringProvider = GetCodeRefactoringProvider();
-
-            var actions = new List<CodeAction>();
-            var context = new CodeRefactoringContext(document, TextSpan.FromBounds(position, position), a => actions.Add(a), CancellationToken.None);
-
-            codeRefactoringProvider.ComputeRefactoringsAsync(context).Wait();
-            return actions;
         }
     }
 }

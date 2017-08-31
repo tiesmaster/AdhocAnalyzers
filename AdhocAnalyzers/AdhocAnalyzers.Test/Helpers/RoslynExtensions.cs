@@ -5,8 +5,10 @@ using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
+using Microsoft.CodeAnalysis.CodeRefactorings;
 using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.CodeAnalysis.Text;
 
 namespace AdhocAnalyzers.Test.Helpers
 {
@@ -34,6 +36,15 @@ namespace AdhocAnalyzers.Test.Helpers
             var context = new CodeFixContext(document, diagnostic, (a, d) => actions.Add(a), CancellationToken.None);
             codeFixProvider.RegisterCodeFixesAsync(context).Wait();
 
+            return actions;
+        }
+
+        public static List<CodeAction> GetCodeActions(this CodeRefactoringProvider codeRefactoringProvider, Document document, int position)
+        {
+            var actions = new List<CodeAction>();
+            var context = new CodeRefactoringContext(document, TextSpan.FromBounds(position, position), a => actions.Add(a), CancellationToken.None);
+
+            codeRefactoringProvider.ComputeRefactoringsAsync(context).Wait();
             return actions;
         }
     }
