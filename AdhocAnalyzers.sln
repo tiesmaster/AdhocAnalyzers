@@ -1,17 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.15
+VisualStudioVersion = 15.0.26730.10
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdhocAnalyzers", "AdhocAnalyzers\AdhocAnalyzers\AdhocAnalyzers.csproj", "{6141EC1D-E823-408C-8056-1A8A0731724E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdhocAnalyzers", "AdhocAnalyzers\AdhocAnalyzers\AdhocAnalyzers.csproj", "{6141EC1D-E823-408C-8056-1A8A0731724E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdhocAnalyzers.Test", "AdhocAnalyzers\AdhocAnalyzers.Test\AdhocAnalyzers.Test.csproj", "{A6FDD2D5-CA81-4DE6-8287-878D28243F81}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdhocAnalyzers.Test", "AdhocAnalyzers\AdhocAnalyzers.Test\AdhocAnalyzers.Test.csproj", "{A6FDD2D5-CA81-4DE6-8287-878D28243F81}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdhocAnalyzers.Vsix", "AdhocAnalyzers\AdhocAnalyzers.Vsix\AdhocAnalyzers.Vsix.csproj", "{2613C14B-B649-4D55-9164-BE100E93D3CA}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdhocRefactorings", "AdhocRefactorings\AdhocRefactorings.csproj", "{A9FA43AA-E052-4D46-8713-F999764813C4}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdhocRefactorings.Test", "AdhocRefactorings.Test\AdhocRefactorings.Test.csproj", "{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8B7C5213-269A-4674-A266-6160C668256E}"
 	ProjectSection(SolutionItems) = preProject
@@ -36,16 +32,11 @@ Global
 		{2613C14B-B649-4D55-9164-BE100E93D3CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2613C14B-B649-4D55-9164-BE100E93D3CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2613C14B-B649-4D55-9164-BE100E93D3CA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A9FA43AA-E052-4D46-8713-F999764813C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A9FA43AA-E052-4D46-8713-F999764813C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A9FA43AA-E052-4D46-8713-F999764813C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A9FA43AA-E052-4D46-8713-F999764813C4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6BD472B0-28DC-4A47-9CA1-4A199852D9E1}
 	EndGlobalSection
 EndGlobal

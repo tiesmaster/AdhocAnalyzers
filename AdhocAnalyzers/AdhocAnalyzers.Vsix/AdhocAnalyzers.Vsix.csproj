@@ -52,12 +52,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\AdhocRefactorings\AdhocRefactorings.csproj">
-      <Project>{A9FA43AA-E052-4D46-8713-F999764813C4}</Project>
-      <Name>AdhocRefactorings</Name>
-      <IncludeOutputGroupsInVSIX>BuiltProjectOutputGroup%3bBuiltProjectOutputGroupDependencies%3bGetCopyToOutputDirectoryItems%3bSatelliteDllsProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
-      <IncludeOutputGroupsInVSIXLocalOnly>DebugSymbolsProjectOutputGroup%3b</IncludeOutputGroupsInVSIXLocalOnly>
-    </ProjectReference>
     <ProjectReference Include="..\AdhocAnalyzers\AdhocAnalyzers.csproj">
       <Project>{6141EC1D-E823-408C-8056-1A8A0731724E}</Project>
       <Name>AdhocAnalyzers</Name>
