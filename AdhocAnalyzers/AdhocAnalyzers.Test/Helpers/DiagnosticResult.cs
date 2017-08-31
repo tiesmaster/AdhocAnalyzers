@@ -2,7 +2,7 @@
 
 using Microsoft.CodeAnalysis;
 
-namespace TestHelper
+namespace AdhocRefactorings.Test.Helpers
 {
     public struct DiagnosticResultLocation
     {

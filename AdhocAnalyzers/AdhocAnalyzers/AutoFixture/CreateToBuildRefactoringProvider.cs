@@ -8,7 +8,7 @@ using Microsoft.CodeAnalysis.CodeRefactorings;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace AdhocRefactorings.AutoFixture
+namespace AdhocAnalyzers.AutoFixture
 {
     [ExportCodeRefactoringProvider(LanguageNames.CSharp, Name = nameof(CreateToBuildRefactoringProvider))]
     [Shared]

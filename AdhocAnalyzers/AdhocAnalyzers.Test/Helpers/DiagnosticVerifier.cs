@@ -12,7 +12,7 @@ using Microsoft.CodeAnalysis.Text;
 
 using Xunit;
 
-namespace TestHelper
+namespace AdhocRefactorings.Test.Helpers
 {
     public abstract class DiagnosticVerifier
     {

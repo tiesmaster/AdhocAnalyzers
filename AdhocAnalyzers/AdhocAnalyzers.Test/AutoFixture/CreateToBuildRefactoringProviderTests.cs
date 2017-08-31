@@ -1,12 +1,12 @@
 ﻿using System;
-using AdhocRefactorings.AutoFixture;
+using AdhocAnalyzers.AutoFixture;
 using AdhocRefactorings.Test.Helpers;
 
 using Microsoft.CodeAnalysis.CodeRefactorings;
 
 using Xunit;
 
-namespace AdhocRefactorings.Test.AutoFixture
+namespace AdhocAnalyzers.Test.AutoFixture
 {
     public class CreateToBuildRefactoringProviderTests : CodeRefactoringVerifier
     {

@@ -11,7 +11,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.Text;
 
-namespace AdhocRefactorings
+namespace AdhocAnalyzers
 {
     [ExportCodeRefactoringProvider(LanguageNames.CSharp, Name = nameof(StructureNamespaceUsingsRefactoringProvider)), Shared]
     public class StructureNamespaceUsingsRefactoringProvider : CodeRefactoringProvider

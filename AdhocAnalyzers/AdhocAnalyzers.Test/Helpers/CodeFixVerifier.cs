@@ -10,7 +10,7 @@ using Microsoft.CodeAnalysis.Simplification;
 
 using Xunit;
 
-namespace TestHelper
+namespace AdhocRefactorings.Test.Helpers
 {
     public abstract class CodeFixVerifier : DiagnosticVerifier
     {

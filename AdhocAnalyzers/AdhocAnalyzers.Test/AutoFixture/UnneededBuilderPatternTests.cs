@@ -9,7 +9,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
 
-using TestHelper;
+using AdhocRefactorings.Test.Helpers;
 
 using Xunit;
 

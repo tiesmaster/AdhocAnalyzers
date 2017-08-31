@@ -4,7 +4,7 @@ using AdhocRefactorings.Test.Helpers;
 
 using Xunit;
 
-namespace AdhocRefactorings.Test
+namespace AdhocAnalyzers.Test
 {
     public class StructureNamespaceUsingsRefactoringProviderTests : CodeRefactoringVerifier
     {
