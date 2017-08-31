@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using AdhocAnalyzers.AutoFixture;
+using AdhocAnalyzers.Test.Helpers;
 
-using AdhocAnalyzers.AutoFixture;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
-
-using AdhocRefactorings.Test.Helpers;
 
 using Xunit;
 

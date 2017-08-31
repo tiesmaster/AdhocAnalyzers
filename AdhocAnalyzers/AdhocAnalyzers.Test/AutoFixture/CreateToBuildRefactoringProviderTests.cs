@@ -1,6 +1,6 @@
 ﻿using System;
 using AdhocAnalyzers.AutoFixture;
-using AdhocRefactorings.Test.Helpers;
+using AdhocAnalyzers.Test.Helpers;
 
 using Microsoft.CodeAnalysis.CodeRefactorings;
 

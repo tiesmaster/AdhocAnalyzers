@@ -1,6 +1,6 @@
-﻿using Microsoft.CodeAnalysis.CodeRefactorings;
+﻿using AdhocAnalyzers.Test.Helpers;
 
-using AdhocRefactorings.Test.Helpers;
+using Microsoft.CodeAnalysis.CodeRefactorings;
 
 using Xunit;
 

@@ -6,11 +6,10 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Formatting;
-using Microsoft.CodeAnalysis.Simplification;
 
 using Xunit;
 
-namespace AdhocRefactorings.Test.Helpers
+namespace AdhocAnalyzers.Test.Helpers
 {
     public abstract class CodeFixVerifier : DiagnosticVerifier
     {
@@ -78,7 +77,7 @@ namespace AdhocRefactorings.Test.Helpers
             }
 
             //after applying all of the code fixes, compare the resulting string to the inputted one
-            var actual = GetStringFromDocument(document);
+            var actual = document.ToStringAndFormat();
             Assert.Equal(newSource, actual);
         }
 
@@ -115,13 +114,5 @@ namespace AdhocRefactorings.Test.Helpers
 
         private static IEnumerable<Diagnostic> GetCompilerDiagnostics(Document document)
             => document.GetSemanticModelAsync().Result.GetDiagnostics();
-
-        private static string GetStringFromDocument(Document document)
-        {
-            var simplifiedDoc = Simplifier.ReduceAsync(document, Simplifier.Annotation).Result;
-            var root = simplifiedDoc.GetSyntaxRootAsync().Result;
-            root = Formatter.Format(root, Formatter.Annotation, simplifiedDoc.Project.Solution.Workspace);
-            return root.GetText().ToString();
-        }
     }
 }

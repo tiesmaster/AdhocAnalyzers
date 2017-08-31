@@ -1,15 +1,17 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeRefactorings;
 using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.Simplification;
 using Microsoft.CodeAnalysis.Text;
+
 using Xunit;
 
-namespace AdhocRefactorings.Test.Helpers
+namespace AdhocAnalyzers.Test.Helpers
 {
     public abstract class CodeRefactoringVerifier
     {
@@ -31,7 +33,7 @@ namespace AdhocRefactorings.Test.Helpers
             var codeActionToApply = actions.Single(action => action.Title == codeActionTitle);
             document = ApplyCodeAction(document, codeActionToApply);
 
-            var actual = GetStringFromDocument(document);
+            var actual = document.ToStringAndFormat();
             Assert.Equal(newSource, actual);
         }
 
@@ -52,15 +54,6 @@ namespace AdhocRefactorings.Test.Helpers
             var solution = operations.OfType<ApplyChangesOperation>().Single().ChangedSolution;
 
             return solution.GetDocument(document.Id);
-        }
-
-        private static string GetStringFromDocument(Document document)
-        {
-            var simplifiedDoc = Simplifier.ReduceAsync(document, Simplifier.Annotation).Result;
-            var root = simplifiedDoc.GetSyntaxRootAsync().Result;
-            root = Formatter.Format(root, Formatter.Annotation, simplifiedDoc.Project.Solution.Workspace);
-
-            return root.GetText().ToString();
         }
     }
 }

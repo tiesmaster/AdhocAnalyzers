@@ -1,12 +1,11 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Reflection;
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Text;
 
-namespace AdhocRefactorings.Test.Helpers
+namespace AdhocAnalyzers.Test.Helpers
 {
     public static class DocumentFactory
     {
