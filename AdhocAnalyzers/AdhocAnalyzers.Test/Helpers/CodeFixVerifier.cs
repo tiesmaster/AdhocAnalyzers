@@ -25,7 +25,7 @@ namespace AdhocRefactorings.Test.Helpers
             var analyzer = GetDiagnosticAnalyzer();
             var codeFixProvider = GetCodeFixProvider();
 
-            var document = CreateProject(oldSource).Documents.First();
+            var document = DocumentFactory.CreateDocument(oldSource);
             var analyzerDiagnostics = GetSortedDiagnosticsFromDocuments(analyzer, document);
             var compilerDiagnostics = GetCompilerDiagnostics(document);
             var attempts = analyzerDiagnostics.Length;

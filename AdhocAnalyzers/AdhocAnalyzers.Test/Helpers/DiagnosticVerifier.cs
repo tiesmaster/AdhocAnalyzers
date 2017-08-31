@@ -238,31 +238,5 @@ namespace AdhocRefactorings.Test.Helpers
             }
             return builder.ToString();
         }
-
-        protected static Project CreateProject(params string[] sources)
-        {
-            string fileNamePrefix = DefaultFilePathPrefix;
-            string fileExt = CSharpDefaultFileExt;
-
-            var projectId = ProjectId.CreateNewId(debugName: TestProjectName);
-
-            var solution = new AdhocWorkspace()
-                .CurrentSolution
-                .AddProject(projectId, TestProjectName, TestProjectName, LanguageNames.CSharp)
-                .AddMetadataReference(projectId, CorlibReference)
-                .AddMetadataReference(projectId, SystemCoreReference)
-                .AddMetadataReference(projectId, CSharpSymbolsReference)
-                .AddMetadataReference(projectId, CodeAnalysisReference);
-
-            int count = 0;
-            foreach (var source in sources)
-            {
-                var newFileName = fileNamePrefix + count + "." + fileExt;
-                var documentId = DocumentId.CreateNewId(projectId, debugName: newFileName);
-                solution = solution.AddDocument(documentId, newFileName, SourceText.From(source));
-                count++;
-            }
-            return solution.GetProject(projectId);
-        }
     }
 }
