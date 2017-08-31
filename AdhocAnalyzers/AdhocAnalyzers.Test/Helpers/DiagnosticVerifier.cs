@@ -30,40 +30,29 @@ namespace AdhocRefactorings.Test.Helpers
         protected void VerifyDiagnostic(string source, params DiagnosticResult[] expected)
         {
             var analyzer = GetDiagnosticAnalyzer();
-            var diagnostics = GetSortedDiagnosticsFromDocuments(analyzer, GetDocuments(source));
+            var diagnostics = GetSortedDiagnosticsFromDocuments(analyzer, DocumentFactory.CreateDocument(source));
             VerifyDiagnosticResults(diagnostics, analyzer, expected);
         }
 
-        protected static Diagnostic[] GetSortedDiagnosticsFromDocuments(DiagnosticAnalyzer analyzer, Document[] documents)
+        protected static Diagnostic[] GetSortedDiagnosticsFromDocuments(DiagnosticAnalyzer analyzer, Document document)
         {
-            var projects = new HashSet<Project>();
-            foreach (var document in documents)
-            {
-                projects.Add(document.Project);
-            }
+            var project = document.Project;
 
             var diagnostics = new List<Diagnostic>();
-            foreach (var project in projects)
+            var compilationWithAnalyzers = project.GetCompilationAsync().Result.WithAnalyzers(ImmutableArray.Create(analyzer));
+            var diags = compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync().Result;
+            foreach (var diag in diags)
             {
-                var compilationWithAnalyzers = project.GetCompilationAsync().Result.WithAnalyzers(ImmutableArray.Create(analyzer));
-                var diags = compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync().Result;
-                foreach (var diag in diags)
+                if (diag.Location == Location.None || diag.Location.IsInMetadata)
                 {
-                    if (diag.Location == Location.None || diag.Location.IsInMetadata)
+                    diagnostics.Add(diag);
+                }
+                else
+                {
+                    var tree = document.GetSyntaxTreeAsync().Result;
+                    if (tree == diag.Location.SourceTree)
                     {
                         diagnostics.Add(diag);
-                    }
-                    else
-                    {
-                        for (int i = 0; i < documents.Length; i++)
-                        {
-                            var document = documents[i];
-                            var tree = document.GetSyntaxTreeAsync().Result;
-                            if (tree == diag.Location.SourceTree)
-                            {
-                                diagnostics.Add(diag);
-                            }
-                        }
                     }
                 }
             }
@@ -248,19 +237,6 @@ namespace AdhocRefactorings.Test.Helpers
                 }
             }
             return builder.ToString();
-        }
-
-        private static Document[] GetDocuments(params string[] sources)
-        {
-            var project = CreateProject(sources);
-            var documents = project.Documents.ToArray();
-
-            if (sources.Length != documents.Length)
-            {
-                throw new ArgumentException("Amount of sources did not match amount of Documents created");
-            }
-
-            return documents;
         }
 
         protected static Project CreateProject(params string[] sources)

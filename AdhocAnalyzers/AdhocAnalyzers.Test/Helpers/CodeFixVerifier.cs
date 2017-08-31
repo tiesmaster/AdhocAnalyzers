@@ -26,7 +26,7 @@ namespace AdhocRefactorings.Test.Helpers
             var codeFixProvider = GetCodeFixProvider();
 
             var document = CreateProject(oldSource).Documents.First();
-            var analyzerDiagnostics = GetSortedDiagnosticsFromDocuments(analyzer, new[] { document });
+            var analyzerDiagnostics = GetSortedDiagnosticsFromDocuments(analyzer, document);
             var compilerDiagnostics = GetCompilerDiagnostics(document);
             var attempts = analyzerDiagnostics.Length;
 
@@ -52,7 +52,7 @@ namespace AdhocRefactorings.Test.Helpers
                 }
 
                 document = ApplyFix(document, actions.ElementAt(0));
-                analyzerDiagnostics = GetSortedDiagnosticsFromDocuments(analyzer, new[] { document });
+                analyzerDiagnostics = GetSortedDiagnosticsFromDocuments(analyzer, document);
 
                 var newCompilerDiagnostics = GetNewDiagnostics(compilerDiagnostics, GetCompilerDiagnostics(document));
 
