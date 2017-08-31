@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using AdhocRefactorings;
-using Microsoft.CodeAnalysis.CodeRefactorings;
+﻿using Microsoft.CodeAnalysis.CodeRefactorings;
+
 using AdhocRefactorings.Test.Helpers;
+
 using Xunit;
-using Microsoft.CodeAnalysis.CSharp;
 
 namespace AdhocRefactorings.Test
 {
@@ -258,8 +253,6 @@ class Class1
         }
 
         protected override CodeRefactoringProvider GetCodeRefactoringProvider()
-        {
-            return new StructureNamespaceUsingsRefactoringProvider(null);
-        }
+            => new StructureNamespaceUsingsRefactoringProvider();
     }
 }
