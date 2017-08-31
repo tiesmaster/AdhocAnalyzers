@@ -17,14 +17,14 @@ namespace AdhocRefactorings.Test.Helpers
 
         protected void VerifyNoRefactoring(string source, int position)
         {
-            var document = DocumentFactory.CreateDocument(source, LanguageNames.CSharp);
+            var document = DocumentFactory.CreateDocument(source);
             var actions = GetCodeActions(document, position);
             Assert.Empty(actions);
         }
 
         protected void VerifyRefactoring(string oldSource, string newSource, int position, string codeActionTitle)
         {
-            var document = DocumentFactory.CreateDocument(oldSource, LanguageNames.CSharp);
+            var document = DocumentFactory.CreateDocument(oldSource);
 
             var actions = GetCodeActions(document, position);
 

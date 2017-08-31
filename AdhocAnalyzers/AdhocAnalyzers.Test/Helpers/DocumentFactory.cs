@@ -17,24 +17,20 @@ namespace AdhocRefactorings.Test.Helpers
 
         internal static string DefaultFilePathPrefix = "Test";
         internal static string CSharpDefaultFileExt = "cs";
-        internal static string VisualBasicDefaultExt = "vb";
         internal static string TestProjectName = "TestProject";
 
-        public static Document CreateDocument(string source, string language = LanguageNames.CSharp)
-        {
-            return CreateProject(new[] { source }, language).Documents.First();
-        }
+        public static Document CreateDocument(string source) => CreateProject(source).Documents.First();
 
-        private static Project CreateProject(string[] sources, string language = LanguageNames.CSharp)
+        private static Project CreateProject(params string[] sources)
         {
             string fileNamePrefix = DefaultFilePathPrefix;
-            string fileExt = language == LanguageNames.CSharp ? CSharpDefaultFileExt : VisualBasicDefaultExt;
+            string fileExt = CSharpDefaultFileExt;
 
             var projectId = ProjectId.CreateNewId(debugName: TestProjectName);
 
             var solution = new AdhocWorkspace()
                 .CurrentSolution
-                .AddProject(projectId, TestProjectName, TestProjectName, language)
+                .AddProject(projectId, TestProjectName, TestProjectName, LanguageNames.CSharp)
                 .AddMetadataReference(projectId, CorlibReference)
                 .AddMetadataReference(projectId, SystemCoreReference)
                 .AddMetadataReference(projectId, CSharpSymbolsReference)
@@ -48,25 +44,8 @@ namespace AdhocRefactorings.Test.Helpers
                 solution = solution.AddDocument(documentId, newFileName, SourceText.From(source));
                 count++;
             }
+
             return solution.GetProject(projectId);
-        }
-
-        private static Document[] GetDocuments(string[] sources, string language)
-        {
-            if (language != LanguageNames.CSharp && language != LanguageNames.VisualBasic)
-            {
-                throw new ArgumentException("Unsupported Language");
-            }
-
-            var project = CreateProject(sources, language);
-            var documents = project.Documents.ToArray();
-
-            if (sources.Length != documents.Length)
-            {
-                throw new ArgumentException("Amount of sources did not match amount of Documents created");
-            }
-
-            return documents;
         }
     }
 }
