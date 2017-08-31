@@ -5,8 +5,6 @@ using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeRefactorings;
-using Microsoft.CodeAnalysis.Formatting;
-using Microsoft.CodeAnalysis.Simplification;
 using Microsoft.CodeAnalysis.Text;
 
 using Xunit;
@@ -31,7 +29,7 @@ namespace AdhocAnalyzers.Test.Helpers
             var actions = GetCodeActions(document, position);
 
             var codeActionToApply = actions.Single(action => action.Title == codeActionTitle);
-            document = ApplyCodeAction(document, codeActionToApply);
+            document = document.ApplyCodeAction(codeActionToApply);
 
             var actual = document.ToStringAndFormat();
             Assert.Equal(newSource, actual);
@@ -46,14 +44,6 @@ namespace AdhocAnalyzers.Test.Helpers
 
             codeRefactoringProvider.ComputeRefactoringsAsync(context).Wait();
             return actions;
-        }
-
-        private static Document ApplyCodeAction(Document document, CodeAction codeAction)
-        {
-            var operations = codeAction.GetOperationsAsync(CancellationToken.None).Result;
-            var solution = operations.OfType<ApplyChangesOperation>().Single().ChangedSolution;
-
-            return solution.GetDocument(document.Id);
         }
     }
 }

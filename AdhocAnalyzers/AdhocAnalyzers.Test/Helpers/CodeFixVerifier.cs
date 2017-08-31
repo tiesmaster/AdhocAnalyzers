@@ -46,11 +46,11 @@ namespace AdhocAnalyzers.Test.Helpers
 
                 if (codeFixIndex != null)
                 {
-                    document = ApplyFix(document, actions.ElementAt((int)codeFixIndex));
+                    document = document.ApplyCodeAction(actions[(int)codeFixIndex]);
                     break;
                 }
 
-                document = ApplyFix(document, actions.ElementAt(0));
+                document = document.ApplyCodeAction(actions[0]);
                 analyzerDiagnostics = GetSortedDiagnosticsFromDocuments(analyzer, document);
 
                 var newCompilerDiagnostics = GetNewDiagnostics(compilerDiagnostics, GetCompilerDiagnostics(document));
@@ -79,13 +79,6 @@ namespace AdhocAnalyzers.Test.Helpers
             //after applying all of the code fixes, compare the resulting string to the inputted one
             var actual = document.ToStringAndFormat();
             Assert.Equal(newSource, actual);
-        }
-
-        private static Document ApplyFix(Document document, CodeAction codeAction)
-        {
-            var operations = codeAction.GetOperationsAsync(CancellationToken.None).Result;
-            var solution = operations.OfType<ApplyChangesOperation>().Single().ChangedSolution;
-            return solution.GetDocument(document.Id);
         }
 
         private static IEnumerable<Diagnostic> GetNewDiagnostics(
