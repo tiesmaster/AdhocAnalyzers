@@ -34,8 +34,8 @@ namespace AdhocAnalyzers.Test.Prism
 
         [Theory]
         [InlineData(0)]
-        [InlineData(52)]
-        [InlineData(221)]
+        [InlineData(21)]
+        [InlineData(223)]
         public void PropertyWithBackingField_PositionOutsideProperty_ShouldNotProvideRefactoring(int position)
         {
             var source =
@@ -141,6 +141,26 @@ namespace AdhocAnalyzers.Test.Prism
 }";
 
             VerifyRefactoring(oldSource, newSource, 52, "Convert to PRISM property");
+        }
+
+        [Fact]
+        public void Property_WithOnlyGetter_ShouldNotProvideRefactoring()
+        {
+            var source =
+@"class Class1
+{
+    private int _property1;
+
+    public int Property1
+    {
+        get
+        {
+            return _property1;
+        }
+    }
+}";
+
+            VerifyNoRefactoring(source, 52);
         }
 
         protected override CodeRefactoringProvider GetCodeRefactoringProvider()
