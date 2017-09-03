@@ -23,6 +23,8 @@ namespace AdhocAnalyzers.Test.Helpers
 
             var actions = GetCodeRefactoringProvider().GetCodeActions(document, position);
 
+            // TODO: throw if no code actions found
+
             var codeActionToApply = actions.Single(action => action.Title == codeActionTitle);
             document = document.ApplyCodeAction(codeActionToApply);
 

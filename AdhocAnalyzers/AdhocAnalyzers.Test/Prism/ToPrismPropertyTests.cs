@@ -36,7 +36,7 @@ namespace AdhocAnalyzers.Test.Prism
         [InlineData(0)]
         [InlineData(52)]
         [InlineData(221)]
-        public void ClassWithPrismProperty_ShouldNotProvideRefactoring(int position)
+        public void PropertyWithBackingField_PositionOutsideProperty_ShouldNotProvideRefactoring(int position)
         {
             var source =
 @"class Class1
@@ -57,6 +57,90 @@ namespace AdhocAnalyzers.Test.Prism
 }";
 
             VerifyNoRefactoring(source, position);
+        }
+
+        [Theory]
+        [InlineData(0)]
+        [InlineData(21)]
+        [InlineData(57)]
+        public void AutoProperty_ShouldNotProvideRefactoring(int position)
+        {
+            var source =
+@"class Class1
+{
+    public int Property1 { get; set; }
+}";
+
+            VerifyNoRefactoring(source, position);
+        }
+
+        [Theory]
+        [InlineData(0)]
+        [InlineData(52)]
+        [InlineData(239)]
+        public void PropertyAlreadyPrismProperty_ShouldNotProvideRefactoring(int position)
+        {
+            var source =
+@"class Class1
+{
+    private int _property1;
+
+    public int Property1
+    {
+        get
+        {
+            return _property1;
+        }
+        set
+        {
+            SetProperty(ref _property1, value);
+        }
+    }
+}";
+
+            VerifyNoRefactoring(source, position);
+        }
+
+        [Fact]
+        public void Property_WithRegularBackingField_ShouldProvideRefactoring()
+        {
+            var oldSource =
+@"class Class1
+{
+    private int _property1;
+
+    public int Property1
+    {
+        get
+        {
+            return _property1;
+        }
+        set
+        {
+            _property1 = value;
+        }
+    }
+}";
+
+            var newSource =
+@"class Class1
+{
+    private int _property1;
+
+    public int Property1
+    {
+        get
+        {
+            return _property1;
+        }
+        set
+        {
+            SetProperty(ref _property1, value);
+        }
+    }
+}";
+
+            VerifyRefactoring(oldSource, newSource, 52, "Convert to PRISM property");
         }
 
         protected override CodeRefactoringProvider GetCodeRefactoringProvider()
