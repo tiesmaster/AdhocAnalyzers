@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 using AdhocAnalyzers.Prism;
 using AdhocAnalyzers.Test.Helpers;
 
 using Microsoft.CodeAnalysis.CodeRefactorings;
+using Microsoft.CodeAnalysis.CSharp.Formatting;
+using Microsoft.CodeAnalysis.Options;
+
 using Xunit;
 
 namespace AdhocAnalyzers.Test.Prism
@@ -249,6 +248,48 @@ namespace AdhocAnalyzers.Test.Prism
     }
 }";
             VerifyRefactoring(oldSource, newSource, 184, "Convert to PRISM property");
+        }
+
+        [Fact]
+        public void Property_WorkspaceWithDifferentFormattingOptions_ShouldReturnCodeFormattedAccordingToThat()
+        {
+            var oldSource =
+@"class Class1
+{
+    private int _property1;
+
+    public int Property1
+    {
+        get
+        {
+            return _property1;
+        }
+        set
+        {
+            _property1 = value;
+        }
+    }
+}";
+
+            var newSource =
+@"class Class1
+{
+    private int _property1;
+
+    public int Property1
+    {
+        get
+        {
+            return _property1;
+        }
+        set
+        {
+            SetProperty(ref _property1,value);
+        }
+    }
+}";
+            var changedOptionSet = new Dictionary<OptionKey, object> { [CSharpFormattingOptions.SpaceAfterComma] = false };
+            VerifyRefactoring(oldSource, newSource, 184, "Convert to PRISM property", changedOptionSet);
         }
 
         [Fact]

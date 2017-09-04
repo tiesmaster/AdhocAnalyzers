@@ -7,6 +7,7 @@ using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CodeRefactorings;
 using Microsoft.CodeAnalysis.Formatting;
+using Microsoft.CodeAnalysis.Options;
 using Microsoft.CodeAnalysis.Simplification;
 using Microsoft.CodeAnalysis.Text;
 
@@ -14,12 +15,36 @@ namespace AdhocAnalyzers.Test.Helpers
 {
     internal static class RoslynExtensions
     {
-        public static string ToStringAndFormat(this Document document)
+        public static string ToStringAndFormat(this Document document, IDictionary<OptionKey, object> changedOptionSet = null)
         {
             var simplifiedDoc = Simplifier.ReduceAsync(document, Simplifier.Annotation).Result;
             var root = simplifiedDoc.GetSyntaxRootAsync().Result;
-            root = Formatter.Format(root, Formatter.Annotation, simplifiedDoc.Project.Solution.Workspace);
+
+            var simplifiedSolution = simplifiedDoc.Project.Solution;
+
+            root = Formatter.Format(
+                root,
+                Formatter.Annotation,
+                simplifiedSolution.Workspace,
+                GetFormattingOptionSet(simplifiedSolution.Options, changedOptionSet));
+
             return root.GetText().ToString();
+        }
+
+        private static OptionSet GetFormattingOptionSet(OptionSet baseOptionSet, IDictionary<OptionKey, object> changedOptionSet)
+        {
+            if (changedOptionSet == null)
+            {
+                return baseOptionSet;
+            }
+
+            var newOptionSet = baseOptionSet;
+            foreach (var entry in changedOptionSet)
+            {
+                newOptionSet = newOptionSet.WithChangedOption(entry.Key, entry.Value);
+            }
+
+            return newOptionSet;
         }
 
         public static Document ApplyCodeAction(this Document document, CodeAction codeAction)

@@ -8,6 +8,7 @@ using Microsoft.CodeAnalysis.CodeRefactorings;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Formatting;
 
 namespace AdhocAnalyzers.Prism
 {
@@ -36,7 +37,8 @@ namespace AdhocAnalyzers.Prism
                         {
                             var newSetPropertyStatement = SyntaxFactory
                                 .ParseExpression($"SetProperty(ref {fieldIdentifier.Identifier.ValueText}, value)")
-                                .WithTriviaFrom(assignmentExpression);
+                                .WithTriviaFrom(assignmentExpression)
+                                .WithAdditionalAnnotations(Formatter.Annotation);
 
                             var newRoot = root.ReplaceNode(assignmentExpression, newSetPropertyStatement);
                             return Task.FromResult(context.Document.WithSyntaxRoot(newRoot));

@@ -1,6 +1,9 @@
-﻿using FluentAssertions;
+﻿using System.Collections.Generic;
+
+using FluentAssertions;
 
 using Microsoft.CodeAnalysis.CodeRefactorings;
+using Microsoft.CodeAnalysis.Options;
 
 using Xunit;
 
@@ -18,7 +21,12 @@ namespace AdhocAnalyzers.Test.Helpers
             actions.Should().BeEmpty("because no refactorings should have been registered");
         }
 
-        protected void VerifyRefactoring(string oldSource, string newSource, int position, string codeActionTitle)
+        protected void VerifyRefactoring(
+            string oldSource,
+            string newSource,
+            int position,
+            string codeActionTitle,
+            IDictionary<OptionKey, object> changedOptionSet = null)
         {
             var document = DocumentFactory.CreateDocument(oldSource);
 
@@ -34,7 +42,7 @@ namespace AdhocAnalyzers.Test.Helpers
 
             document = document.ApplyCodeAction(codeActionToApply);
 
-            var actual = document.ToStringAndFormat();
+            var actual = document.ToStringAndFormat(changedOptionSet);
             Assert.Equal(newSource, actual);
         }
     }
