@@ -1,4 +1,4 @@
-﻿using System.Linq;
+﻿using FluentAssertions;
 
 using Microsoft.CodeAnalysis.CodeRefactorings;
 
@@ -14,7 +14,8 @@ namespace AdhocAnalyzers.Test.Helpers
         {
             var document = DocumentFactory.CreateDocument(source);
             var actions = GetCodeRefactoringProvider().GetCodeActions(document, position);
-            Assert.Empty(actions);
+
+            actions.Should().BeEmpty("because no refactorings should have been registered");
         }
 
         protected void VerifyRefactoring(string oldSource, string newSource, int position, string codeActionTitle)
@@ -23,9 +24,14 @@ namespace AdhocAnalyzers.Test.Helpers
 
             var actions = GetCodeRefactoringProvider().GetCodeActions(document, position);
 
-            // TODO: throw if no code actions found
+            var codeActionToApply = actions
+                .Should()
+                .ContainSingle(
+                    action => action.Title == codeActionTitle,
+                    "because the refactoring should register exactly one code action with title '{0}'",
+                    codeActionTitle)
+                .Subject;
 
-            var codeActionToApply = actions.Single(action => action.Title == codeActionTitle);
             document = document.ApplyCodeAction(codeActionToApply);
 
             var actual = document.ToStringAndFormat();

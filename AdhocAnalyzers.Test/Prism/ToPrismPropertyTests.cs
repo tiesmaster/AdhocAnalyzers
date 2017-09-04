@@ -139,7 +139,6 @@ namespace AdhocAnalyzers.Test.Prism
         }
     }
 }";
-
             VerifyRefactoring(oldSource, newSource, 52, "Convert to PRISM property");
         }
 

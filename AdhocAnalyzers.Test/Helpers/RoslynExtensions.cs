@@ -39,12 +39,20 @@ namespace AdhocAnalyzers.Test.Helpers
             return actions;
         }
 
-        public static List<CodeAction> GetCodeActions(this CodeRefactoringProvider codeRefactoringProvider, Document document, int position)
+        public static List<CodeAction> GetCodeActions(
+            this CodeRefactoringProvider codeRefactoringProvider,
+            Document document,
+            int position)
         {
             var actions = new List<CodeAction>();
-            var context = new CodeRefactoringContext(document, TextSpan.FromBounds(position, position), a => actions.Add(a), CancellationToken.None);
+            var context = new CodeRefactoringContext(
+                document,
+                TextSpan.FromBounds(position, position),
+                actions.Add,
+                CancellationToken.None);
 
             codeRefactoringProvider.ComputeRefactoringsAsync(context).Wait();
+
             return actions;
         }
     }
