@@ -34,8 +34,10 @@ namespace AdhocAnalyzers.Test.Prism
 
         [Theory]
         [InlineData(0)]
-        [InlineData(21)]
-        [InlineData(223)]
+        [InlineData(52)]
+        [InlineData(89)]
+        [InlineData(156)]
+        [InlineData(214)]
         public void PropertyWithBackingField_PositionOutsideProperty_ShouldNotProvideRefactoring(int position)
         {
             var source =
@@ -77,7 +79,9 @@ namespace AdhocAnalyzers.Test.Prism
         [Theory]
         [InlineData(0)]
         [InlineData(52)]
-        [InlineData(239)]
+        [InlineData(89)]
+        [InlineData(156)]
+        [InlineData(184)]
         public void PropertyAlreadyPrismProperty_ShouldNotProvideRefactoring(int position)
         {
             var source =
@@ -139,7 +143,112 @@ namespace AdhocAnalyzers.Test.Prism
         }
     }
 }";
-            VerifyRefactoring(oldSource, newSource, 52, "Convert to PRISM property");
+            VerifyRefactoring(oldSource, newSource, 184, "Convert to PRISM property");
+        }
+
+        [Fact]
+        public void Property_WithOnlySetterSettingBackingField_ShouldProvideRefactoring()
+        {
+            var oldSource =
+@"class Class1
+{
+    private int _property1;
+
+    public int Property1
+    {
+        set
+        {
+            _property1 = value;
+        }
+    }
+}";
+
+            var newSource =
+@"class Class1
+{
+    private int _property1;
+
+    public int Property1
+    {
+        set
+        {
+            SetProperty(ref _property1, value);
+        }
+    }
+}";
+            VerifyRefactoring(oldSource, newSource, 117, "Convert to PRISM property");
+        }
+
+        [Fact]
+        public void Property_AccessorsAreExpressionBodies_ShouldProvideRefactoring()
+        {
+            var oldSource =
+@"class Class1
+{
+    private int _property1;
+
+    public int Property1
+    {
+        get => _property1;
+        set => _property1 = value;
+    }
+}";
+
+            var newSource =
+@"class Class1
+{
+    private int _property1;
+
+    public int Property1
+    {
+        get => _property1;
+        set => SetProperty(ref _property1, value);
+    }
+}";
+            VerifyRefactoring(oldSource, newSource, 124, "Convert to PRISM property");
+        }
+
+        [Fact]
+        public void Property_SetterWithAdditionalLogic_ShouldProvideRefactoring()
+        {
+            var oldSource =
+@"class Class1
+{
+    private int _property1;
+
+    public int Property1
+    {
+        get
+        {
+            return _property1;
+        }
+        set
+        {
+            _property1 = value;
+            OnPropertyChanged();
+        }
+    }
+}";
+
+            var newSource =
+@"class Class1
+{
+    private int _property1;
+
+    public int Property1
+    {
+        get
+        {
+            return _property1;
+        }
+        set
+        {
+            SetProperty(ref _property1, value);
+            OnPropertyChanged();
+        }
+    }
+}";
+            VerifyRefactoring(oldSource, newSource, 184, "Convert to PRISM property");
         }
 
         [Fact]
@@ -159,7 +268,7 @@ namespace AdhocAnalyzers.Test.Prism
     }
 }";
 
-            VerifyNoRefactoring(source, 52);
+            VerifyNoRefactoring(source, 117);
         }
 
         protected override CodeRefactoringProvider GetCodeRefactoringProvider()
