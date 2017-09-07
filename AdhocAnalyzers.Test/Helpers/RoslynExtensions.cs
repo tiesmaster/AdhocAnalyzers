@@ -32,20 +32,9 @@ namespace AdhocAnalyzers.Test.Helpers
         }
 
         private static OptionSet GetFormattingOptionSet(OptionSet baseOptionSet, IDictionary<OptionKey, object> changedOptionSet)
-        {
-            if (changedOptionSet == null)
-            {
-                return baseOptionSet;
-            }
-
-            var newOptionSet = baseOptionSet;
-            foreach (var entry in changedOptionSet)
-            {
-                newOptionSet = newOptionSet.WithChangedOption(entry.Key, entry.Value);
-            }
-
-            return newOptionSet;
-        }
+            => changedOptionSet?.Aggregate(
+                baseOptionSet,
+                (newOptionSet, kvp) => newOptionSet.WithChangedOption(kvp.Key, kvp.Value));
 
         public static Document ApplyCodeAction(this Document document, CodeAction codeAction)
         {
