@@ -1,9 +1,6 @@
 IDEAS FOR ANAlYZERS/REFACTORINGS
 ================================
 
- * AutoFixture: Convert Build<string>().With(...).Creat() to .Create<string>(), and drop all specimen customizations
- * AutoFixture: Remove With(...) invocation ??
- * PRISM: Convert property to PRISM property
  * PRISM: Violation on SetProperty() with lambda
  * XUNIT: Convert TestMethod to Fact
 	- also add ctor, and dispose methods, that call TestInitialize // TestCleanup method
@@ -11,13 +8,14 @@ IDEAS FOR ANAlYZERS/REFACTORINGS
 
  * PRISM: Violation on calling PRISM Activate, instead of calling ActivateAsync()
 
+ * AutoFixture: Convert Build<string>().With(...).Creat() to .Create<string>(), and drop all specimen customizations
+ * AutoFixture: Remove With(...) invocation ??
+
 ===================================================================================================
 
+automatisch installeren bij build?
 add .editorconfig (check https://github.com/MakingSense/code-style-guides/blob/master/CSharp/.editorconfig)
 add keyboard shortcut to this refactoring
-automatisch installeren bij build?
-
-uitzoeken naar welke versie ik de packages kan upgraden
 
 copy in roslyn cursor testhelpers, and change test data to use that (MarkupTestFile)
 	and add support in VerifyRefactorings to check that outside the expected "hotzone" no refactorings are given
