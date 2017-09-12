@@ -28,17 +28,10 @@ namespace AdhocAnalyzers.Prism
             var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
             var invocation = (InvocationExpressionSyntax)root.FindNode(diagnosticsLocation.SourceSpan);
 
-            var argumentList = invocation.ArgumentList;
-
-            var newArguments = argumentList.Arguments.RemoveAt(0);
-            var firstArgument = newArguments.First();
-            var newFirstArgument = firstArgument.WithRefOrOutKeyword(SyntaxFactory.Token(SyntaxKind.RefKeyword));
-
-            newArguments = newArguments.Replace(firstArgument, newFirstArgument);
-
-            var newArgumentList = argumentList.WithArguments(newArguments);
-
-            var newRoot = root.ReplaceNode(argumentList, newArgumentList);
+            var argumentsNode = invocation.ArgumentList;
+            var newRoot = root.ReplaceNode(
+                argumentsNode,
+                argumentsNode.WithArguments(ConvertToDefaultSetPropertyArguments(argumentsNode.Arguments)));
 
             var title = "Convert custom lambda SetProperty() to PRISM's default SetProperty().";
             context.RegisterCodeFix(
@@ -47,7 +40,16 @@ namespace AdhocAnalyzers.Prism
                     _ => Task.FromResult(context.Document.WithSyntaxRoot(newRoot)),
                     nameof(LegacySetPropertyUsingLambdaCodeFixProvider)),
                 diagnostic);
+        }
 
+        private static SeparatedSyntaxList<ArgumentSyntax> ConvertToDefaultSetPropertyArguments(
+            SeparatedSyntaxList<ArgumentSyntax> lambdaArgumentList)
+        {
+            var newArguments = lambdaArgumentList.RemoveAt(0);
+            var firstArgument = newArguments.First();
+            var newFirstArgument = firstArgument.WithRefOrOutKeyword(SyntaxFactory.Token(SyntaxKind.RefKeyword));
+
+            return newArguments.Replace(firstArgument, newFirstArgument);
         }
     }
 }
