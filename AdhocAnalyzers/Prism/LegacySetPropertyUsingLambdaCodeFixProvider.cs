@@ -45,11 +45,11 @@ namespace AdhocAnalyzers.Prism
         private static SeparatedSyntaxList<ArgumentSyntax> ConvertToDefaultSetPropertyArguments(
             SeparatedSyntaxList<ArgumentSyntax> lambdaArgumentList)
         {
-            var newArguments = lambdaArgumentList.RemoveAt(0);
-            var firstArgument = newArguments.First();
-            var newFirstArgument = firstArgument.WithRefOrOutKeyword(SyntaxFactory.Token(SyntaxKind.RefKeyword));
-
-            return newArguments.Replace(firstArgument, newFirstArgument);
+            return lambdaArgumentList
+                .Replace(
+                    lambdaArgumentList[1],
+                    lambdaArgumentList[1].WithRefOrOutKeyword(SyntaxFactory.Token(SyntaxKind.RefKeyword)))
+                .RemoveAt(0);
         }
     }
 }
