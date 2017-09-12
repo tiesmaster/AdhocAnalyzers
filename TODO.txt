@@ -2,6 +2,7 @@ IDEAS FOR ANAlYZERS/REFACTORINGS
 ================================
 
  * PRISM: Violation on SetProperty() with lambda
+   * try to replace the analyzer, with making the SetProperty deprecated, and make codefixer for CS0618 with this specific instance
  * XUNIT: Convert TestMethod to Fact
 	- also add ctor, and dispose methods, that call TestInitialize // TestCleanup method
  * WPF: Convert DependencyProperty to ReadonlyDependencyProperty
