@@ -48,7 +48,8 @@ namespace AdhocAnalyzers.AutoFixture
             context.RegisterCodeFix(
                 CodeAction.Create(
                     title,
-                    _ => Task.FromResult(context.Document.WithSyntaxRoot(newRoot))),
+                    _ => Task.FromResult(context.Document.WithSyntaxRoot(newRoot)),
+                    nameof(UnneededBuilderPatternCodeFixProvider)),
                 diagnostic);
         }
     }
