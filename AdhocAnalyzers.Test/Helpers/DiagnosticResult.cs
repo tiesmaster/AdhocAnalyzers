@@ -38,15 +38,7 @@ namespace AdhocAnalyzers.Test.Helpers
 
         public DiagnosticResultLocation[] Locations
         {
-            get
-            {
-                if (locations == null)
-                {
-                    locations = new DiagnosticResultLocation[] { };
-                }
-                return locations;
-            }
-
+            get => locations ?? (locations = new DiagnosticResultLocation[] { });
             set => locations = value;
         }
 
