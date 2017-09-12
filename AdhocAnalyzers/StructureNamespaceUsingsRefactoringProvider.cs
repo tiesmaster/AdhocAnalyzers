@@ -82,8 +82,7 @@ namespace AdhocAnalyzers
 
         private string GetFirstNamespaceName(NameSyntax nameNode)
         {
-            var identifierNode = nameNode as IdentifierNameSyntax;
-            if (identifierNode != null)
+            if (nameNode is IdentifierNameSyntax identifierNode)
             {
                 return identifierNode.ToString();
             }
