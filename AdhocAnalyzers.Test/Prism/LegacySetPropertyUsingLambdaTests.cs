@@ -74,7 +74,7 @@ namespace AdhocAnalyzers.Test.Prism
             };
 
             VerifyDiagnostic(oldSource, expected);
-            //VerifyFix(oldSource, newSource);
+            VerifyFix(oldSource, newSource);
         }
 
         // TODO:
