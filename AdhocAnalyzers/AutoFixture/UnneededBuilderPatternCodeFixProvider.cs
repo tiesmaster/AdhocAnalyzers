@@ -18,6 +18,8 @@ namespace AdhocAnalyzers.AutoFixture
     {
         public override ImmutableArray<string> FixableDiagnosticIds => ImmutableArray.Create("AF0001");
 
+        public override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
+
         public override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {
             var diagnostic = context.Diagnostics.First();
