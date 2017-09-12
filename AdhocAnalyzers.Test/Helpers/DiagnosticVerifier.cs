@@ -191,7 +191,8 @@ namespace AdhocAnalyzers.Test.Helpers
             var builder = new StringBuilder();
             for (int i = 0; i < diagnostics.Length; ++i)
             {
-                builder.AppendLine("// " + diagnostics[i].ToString());
+                builder.AppendFormat("// {0}", diagnostics[i]);
+                builder.AppendLine();
 
                 var analyzerType = analyzer.GetType();
                 var rules = analyzer.SupportedDiagnostics;

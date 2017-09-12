@@ -58,7 +58,6 @@ namespace AdhocAnalyzers.AutoFixture
                                     genericNode.Identifier,
                                     SyntaxFactory.Identifier("Build")));
 
-
                         var newInvocationNode = SyntaxFactory.InvocationExpression(
                             SyntaxFactory.MemberAccessExpression(
                                 SyntaxKind.SimpleMemberAccessExpression,
