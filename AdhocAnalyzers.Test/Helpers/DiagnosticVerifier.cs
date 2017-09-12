@@ -152,8 +152,7 @@ namespace AdhocAnalyzers.Test.Helpers
 
             Assert.True(
                 actualSpan.Path == expected.Path
-                || (actualSpan.Path != null
-                    && actualSpan.Path.Contains("Test0.")
+                || (actualSpan.Path?.Contains("Test0.") == true
                     && expected.Path.Contains("Test.")),
                 string.Format("Expected diagnostic to be in file \"{0}\" was actually in file \"{1}\"\r\n\r\n" +
                     "Diagnostic:\r\n    {2}\r\n",
