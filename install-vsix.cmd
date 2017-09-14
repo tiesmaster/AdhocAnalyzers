@@ -1,0 +1,1 @@
+"%~dp0AdhocAnalyzers.Vsix\bin\Release\AdhocAnalyzers.Vsix.vsix"
