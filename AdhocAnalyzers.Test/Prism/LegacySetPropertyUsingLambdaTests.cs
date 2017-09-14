@@ -25,7 +25,7 @@ namespace AdhocAnalyzers.Test.Prism
         }
 
         [Fact]
-        public void MyTestMethod()
+        public void LegacySetPropertyInvocation_ShouldProvideDiagnosticAndCodeFix()
         {
             var oldSource =
 @"class Class1
@@ -75,6 +75,30 @@ namespace AdhocAnalyzers.Test.Prism
 
             VerifyDiagnostic(oldSource, expected);
             VerifyFix(oldSource, newSource);
+        }
+
+        [Fact]
+        public void DefaultSetPropertyInvocation_DoesNotProvideDiagnostic()
+        {
+            var source =
+@"class Class1
+{
+    private string _foo;
+
+    public string Foo
+    {
+        get
+        {
+            return _foo;
+        }
+        set
+        {
+            SetProperty(ref _foo, value);
+        }
+    }
+}";
+
+            VerifyDiagnostic(source);
         }
 
         // TODO:

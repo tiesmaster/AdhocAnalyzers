@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Text;
+﻿using System.Collections.Immutable;
 
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -31,7 +27,8 @@ namespace AdhocAnalyzers.Prism
         private void AnalyzeInvocation(SyntaxNodeAnalysisContext context)
         {
             var invocation = (InvocationExpressionSyntax)context.Node;
-            if (invocation.Expression is IdentifierNameSyntax name && name.Identifier.ValueText == "SetProperty")
+            if (invocation.Expression is IdentifierNameSyntax name && name.Identifier.ValueText == "SetProperty"
+                && invocation.ArgumentList.Arguments.Count > 2)
             {
                 context.ReportDiagnostic(Diagnostic.Create(_rule, invocation.GetLocation()));
             }
