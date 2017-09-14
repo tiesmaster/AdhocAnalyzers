@@ -102,7 +102,6 @@ namespace AdhocAnalyzers.Test.Prism
         }
 
         // TODO:
-        // no diagnostic: SetProperty(ref _foo, value);
         // no diagnostic: SetProperty("Hoi", "dag")
         // no diagnostic?: SetProperty in method, instead of setter
 
