@@ -30,7 +30,7 @@ namespace AdhocAnalyzers.Test.Helpers
             string codeActionTitle,
             IDictionary<OptionKey, object> changedOptionSet = null)
         {
-            MarkupTestFile.GetPosition(initialMarkup, out var initialSource, out var position);
+            MarkupTestFile.GetPosition(initialMarkup.NormalizeLineEndingsToDos(), out var initialSource, out var position);
             var document = DocumentFactory.CreateDocument(initialSource);
 
             var actions = GetCodeRefactoringProvider().GetCodeActions(document, position);
@@ -47,7 +47,7 @@ namespace AdhocAnalyzers.Test.Helpers
             document = document.ApplyCodeAction(codeActionToApply);
 
             var actual = document.ToStringAndFormat(changedOptionSet);
-            Assert.Equal(expectedSource, actual);
+            Assert.Equal(expectedSource.NormalizeLineEndingsToDos(), actual);
         }
     }
 }
