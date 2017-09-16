@@ -101,9 +101,22 @@ namespace AdhocAnalyzers.Test.Prism
             VerifyDiagnostic(source);
         }
 
-        // TODO:
-        // no diagnostic: SetProperty("Hoi", "dag")
-        // no diagnostic?: SetProperty in method, instead of setter
+        [Fact]
+        public void SetPropertyInvocation_NotInGetter_DoesNotProvideDiagnostic()
+        {
+            var source =
+@"class Class1
+{
+    private string _foo;
+
+    public string Method1()
+    {
+        SetProperty(() => _foo = value, _foo, value);
+    }
+}";
+
+            VerifyDiagnostic(source);
+        }
 
         protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
             => new LegacySetPropertyUsingLambdaAnalyzer();

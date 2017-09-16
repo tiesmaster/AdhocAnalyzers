@@ -1,5 +1,5 @@
 ﻿using System.Collections.Immutable;
-
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -28,7 +28,8 @@ namespace AdhocAnalyzers.Prism
         {
             var invocation = (InvocationExpressionSyntax)context.Node;
             if (invocation.Expression is IdentifierNameSyntax name && name.Identifier.ValueText == "SetProperty"
-                && invocation.ArgumentList.Arguments.Count > 2)
+                && invocation.ArgumentList.Arguments.Count > 2
+                && invocation.Ancestors().Any(x => x.IsKind(SyntaxKind.SetAccessorDeclaration)))
             {
                 context.ReportDiagnostic(Diagnostic.Create(_rule, invocation.GetLocation()));
             }
