@@ -1,6 +1,6 @@
 ﻿using AdhocAnalyzers.AutoFixture;
 using AdhocAnalyzers.Test.Helpers;
-
+using AdhocAnalyzers.Test.Helpers.Xunit;
 using Microsoft.CodeAnalysis.CodeRefactorings;
 
 using Xunit;
@@ -85,22 +85,18 @@ namespace AdhocAnalyzers.Test.AutoFixture
         }
 
         [Theory]
-        [InlineData(0)]
-        [InlineData(14)]
-        [InlineData(45)]
-        [InlineData(117)]
-        public void NotAvailableOutsideInvocationLine(int positionWithoutRefactoring)
-        {
-            var source =
-@"class Class1
-{
-    void Method1()
-    {
-        var fixture = new Fixture();
+        [MarkupData(
+@"[||]class Class1
+[||]{
+    [||]void Method1()
+    [||]{
+        [||]var fixture = new Fixture();
         fixture.Create<string>();
-    }
-}";
-            VerifyNoRefactoringOld(source, positionWithoutRefactoring);
+    [||]}
+[||]}")]
+        public void NotAvailableOutsideInvocationLine(string markup)
+        {
+            VerifyNoRefactoring(markup);
         }
 
         [Fact]
