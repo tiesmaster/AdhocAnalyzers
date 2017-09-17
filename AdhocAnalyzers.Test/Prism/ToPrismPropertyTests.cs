@@ -142,7 +142,7 @@ namespace AdhocAnalyzers.Test.Prism
         }
     }
 }";
-            VerifyRefactoring(oldSource, newSource, 184, "Convert to PRISM property");
+            VerifyRefactoringOld(oldSource, newSource, 184, "Convert to PRISM property");
         }
 
         [Fact]
@@ -175,7 +175,7 @@ namespace AdhocAnalyzers.Test.Prism
         }
     }
 }";
-            VerifyRefactoring(oldSource, newSource, 117, "Convert to PRISM property");
+            VerifyRefactoringOld(oldSource, newSource, 117, "Convert to PRISM property");
         }
 
         [Fact]
@@ -204,7 +204,7 @@ namespace AdhocAnalyzers.Test.Prism
         set => SetProperty(ref _property1, value);
     }
 }";
-            VerifyRefactoring(oldSource, newSource, 124, "Convert to PRISM property");
+            VerifyRefactoringOld(oldSource, newSource, 124, "Convert to PRISM property");
         }
 
         [Fact]
@@ -247,7 +247,7 @@ namespace AdhocAnalyzers.Test.Prism
         }
     }
 }";
-            VerifyRefactoring(oldSource, newSource, 184, "Convert to PRISM property");
+            VerifyRefactoringOld(oldSource, newSource, 184, "Convert to PRISM property");
         }
 
         [Fact]
@@ -289,7 +289,7 @@ namespace AdhocAnalyzers.Test.Prism
     }
 }";
             var changedOptionSet = new Dictionary<OptionKey, object> { [CSharpFormattingOptions.SpaceAfterComma] = false };
-            VerifyRefactoring(oldSource, newSource, 184, "Convert to PRISM property", changedOptionSet);
+            VerifyRefactoringOld(oldSource, newSource, 184, "Convert to PRISM property", changedOptionSet);
         }
 
         [Fact]

@@ -32,7 +32,7 @@ namespace AdhocAnalyzers.Test.AutoFixture
     }
 }";
 
-            VerifyRefactoringNew(oldSource, newSource, "Convert '.Create<string>()' to '.Build<string>().Create().");
+            VerifyRefactoring(oldSource, newSource, "Convert '.Create<string>()' to '.Build<string>().Create().");
         }
 
         [Fact]
@@ -57,7 +57,7 @@ namespace AdhocAnalyzers.Test.AutoFixture
     }
 }";
 
-            VerifyRefactoring(oldSource, newSource, 100, "Convert '.Create<Class1>()' to '.Build<Class1>().Create().");
+            VerifyRefactoringOld(oldSource, newSource, 100, "Convert '.Create<Class1>()' to '.Build<Class1>().Create().");
         }
 
         [Fact]
@@ -82,7 +82,7 @@ namespace AdhocAnalyzers.Test.AutoFixture
     }
 }";
 
-            VerifyRefactoring(oldSource, newSource, 92, "Convert '.Create<string>()' to '.Build<string>().Create().");
+            VerifyRefactoringOld(oldSource, newSource, 92, "Convert '.Create<string>()' to '.Build<string>().Create().");
         }
 
         [Theory]
@@ -190,7 +190,7 @@ namespace AdhocAnalyzers.Test.AutoFixture
     }
 }";
 
-            VerifyRefactoring(oldSource, newSource, positionWithRefactoring, "Convert '.Create<string>()' to '.Build<string>().Create().");
+            VerifyRefactoringOld(oldSource, newSource, positionWithRefactoring, "Convert '.Create<string>()' to '.Build<string>().Create().");
         }
 
         protected override CodeRefactoringProvider GetCodeRefactoringProvider() => new CreateToBuildRefactoringProvider();

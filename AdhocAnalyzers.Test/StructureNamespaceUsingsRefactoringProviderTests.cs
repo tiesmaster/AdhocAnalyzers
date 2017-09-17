@@ -27,7 +27,7 @@ class Class1
 {
 }";
 
-            VerifyRefactoring(oldSource, newSource, 0, "Add newline betweeen using groups");
+            VerifyRefactoringOld(oldSource, newSource, 0, "Add newline betweeen using groups");
         }
 
         [Fact]
@@ -51,7 +51,7 @@ class Class1
 {
 }";
 
-            VerifyRefactoring(oldSource, newSource, 0, "Add newline betweeen using groups");
+            VerifyRefactoringOld(oldSource, newSource, 0, "Add newline betweeen using groups");
         }
 
         [Fact]
@@ -77,7 +77,7 @@ class Class1
 {
 }";
 
-            VerifyRefactoring(oldSource, newSource, 0, "Add newline betweeen using groups");
+            VerifyRefactoringOld(oldSource, newSource, 0, "Add newline betweeen using groups");
         }
 
         [Fact]
@@ -101,7 +101,7 @@ class Class1
 {
 }";
 
-            VerifyRefactoring(oldSource, newSource, 0, "Add newline betweeen using groups");
+            VerifyRefactoringOld(oldSource, newSource, 0, "Add newline betweeen using groups");
         }
 
         [Fact]
@@ -128,7 +128,7 @@ class Class1
 {
 }";
 
-            VerifyRefactoring(oldSource, newSource, 0, "Add newline betweeen using groups");
+            VerifyRefactoringOld(oldSource, newSource, 0, "Add newline betweeen using groups");
         }
 
         [Fact]
@@ -157,7 +157,7 @@ class Class1
 {
 }";
 
-            VerifyRefactoring(oldSource, newSource, 0, "Add newline betweeen using groups");
+            VerifyRefactoringOld(oldSource, newSource, 0, "Add newline betweeen using groups");
         }
 
         [Fact]
@@ -185,7 +185,7 @@ class Class1
 {
 }";
 
-            VerifyRefactoring(oldSource, newSource, 0, "Add newline betweeen using groups");
+            VerifyRefactoringOld(oldSource, newSource, 0, "Add newline betweeen using groups");
         }
 
         [Fact]

@@ -21,24 +21,14 @@ namespace AdhocAnalyzers.Test.Helpers
             actions.Should().BeEmpty("because no refactorings should have been registered");
         }
 
-        protected void VerifyRefactoringNew(
+        protected void VerifyRefactoring(
             string initialMarkup,
-            string newSource,
+            string expectedMarkup,
             string codeActionTitle,
             IDictionary<OptionKey, object> changedOptionSet = null)
         {
             MarkupTestFile.GetPosition(initialMarkup, out var initialSource, out var position);
-            VerifyRefactoring(initialSource, newSource, position, codeActionTitle, changedOptionSet);
-        }
-
-            protected void VerifyRefactoring(
-            string oldSource,
-            string newSource,
-            int position,
-            string codeActionTitle,
-            IDictionary<OptionKey, object> changedOptionSet = null)
-        {
-            var document = DocumentFactory.CreateDocument(oldSource);
+            var document = DocumentFactory.CreateDocument(initialSource);
 
             var actions = GetCodeRefactoringProvider().GetCodeActions(document, position);
 
@@ -53,7 +43,17 @@ namespace AdhocAnalyzers.Test.Helpers
             document = document.ApplyCodeAction(codeActionToApply);
 
             var actual = document.ToStringAndFormat(changedOptionSet);
-            Assert.Equal(newSource, actual);
+            Assert.Equal(expectedMarkup, actual);
+        }
+
+        protected void VerifyRefactoringOld(
+            string oldSource,
+            string newSource,
+            int position,
+            string codeActionTitle,
+            IDictionary<OptionKey, object> changedOptionSet = null)
+        {
+            VerifyRefactoring(oldSource.Insert(position, "$$"), newSource, codeActionTitle, changedOptionSet);
         }
     }
 }
