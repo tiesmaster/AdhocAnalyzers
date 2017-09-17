@@ -195,7 +195,7 @@ class Class1
 @"class Class1
 {
 }";
-            VerifyNoRefactoring(source, 0);
+            VerifyNoRefactoringOld(source, 0);
         }
 
         [Fact]
@@ -207,7 +207,7 @@ class Class1
 class Class1
 {
 }";
-            VerifyNoRefactoring(source, 0);
+            VerifyNoRefactoringOld(source, 0);
         }
 
         [Fact]
@@ -220,7 +220,7 @@ using System.Threading.Tasks;
 class Class1
 {
 }";
-            VerifyNoRefactoring(source, 0);
+            VerifyNoRefactoringOld(source, 0);
         }
 
         [Fact]
@@ -235,7 +235,7 @@ using Microsoft;
 class Class1
 {
 }";
-            VerifyNoRefactoring(source, 0);
+            VerifyNoRefactoringOld(source, 0);
         }
 
         [Fact]
@@ -249,7 +249,7 @@ using Microsoft;
 class Class1
 {
 }";
-            VerifyNoRefactoring(source, 64);
+            VerifyNoRefactoringOld(source, 64);
         }
 
         protected override CodeRefactoringProvider GetCodeRefactoringProvider()

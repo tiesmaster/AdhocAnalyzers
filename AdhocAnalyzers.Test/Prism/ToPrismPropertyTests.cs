@@ -17,7 +17,7 @@ namespace AdhocAnalyzers.Test.Prism
         public void EmptySource_ShouldNotProvideRefactoring()
         {
             var source = "";
-            VerifyNoRefactoring(source, 0);
+            VerifyNoRefactoringOld(source, 0);
         }
 
         [Fact]
@@ -28,7 +28,7 @@ namespace AdhocAnalyzers.Test.Prism
 {
 }";
 
-            VerifyNoRefactoring(source, 0);
+            VerifyNoRefactoringOld(source, 0);
         }
 
         [Theory]
@@ -57,7 +57,7 @@ namespace AdhocAnalyzers.Test.Prism
     }
 }";
 
-            VerifyNoRefactoring(source, position);
+            VerifyNoRefactoringOld(source, position);
         }
 
         [Theory]
@@ -72,7 +72,7 @@ namespace AdhocAnalyzers.Test.Prism
     public int Property1 { get; set; }
 }";
 
-            VerifyNoRefactoring(source, position);
+            VerifyNoRefactoringOld(source, position);
         }
 
         [Theory]
@@ -101,7 +101,7 @@ namespace AdhocAnalyzers.Test.Prism
     }
 }";
 
-            VerifyNoRefactoring(source, position);
+            VerifyNoRefactoringOld(source, position);
         }
 
         [Fact]
@@ -309,7 +309,7 @@ namespace AdhocAnalyzers.Test.Prism
     }
 }";
 
-            VerifyNoRefactoring(source, 117);
+            VerifyNoRefactoringOld(source, 117);
         }
 
         protected override CodeRefactoringProvider GetCodeRefactoringProvider()

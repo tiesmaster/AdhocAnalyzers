@@ -1,5 +1,4 @@
-﻿using System;
-using AdhocAnalyzers.AutoFixture;
+﻿using AdhocAnalyzers.AutoFixture;
 using AdhocAnalyzers.Test.Helpers;
 
 using Microsoft.CodeAnalysis.CodeRefactorings;
@@ -44,7 +43,7 @@ namespace AdhocAnalyzers.Test.AutoFixture
     void Method1()
     {
         var fixture = new Fixture();
-        fixture.Create<Class1>();
+        fixture.$$Create<Class1>();
     }
 }";
             var newSource =
@@ -57,7 +56,7 @@ namespace AdhocAnalyzers.Test.AutoFixture
     }
 }";
 
-            VerifyRefactoringOld(oldSource, newSource, 100, "Convert '.Create<Class1>()' to '.Build<Class1>().Create().");
+            VerifyRefactoring(oldSource, newSource, "Convert '.Create<Class1>()' to '.Build<Class1>().Create().");
         }
 
         [Fact]
@@ -69,7 +68,7 @@ namespace AdhocAnalyzers.Test.AutoFixture
     void Method1()
     {
         var foo = new Fixture();
-        foo.Create<string>();
+        foo.$$Create<string>();
     }
 }";
             var newSource =
@@ -82,7 +81,7 @@ namespace AdhocAnalyzers.Test.AutoFixture
     }
 }";
 
-            VerifyRefactoringOld(oldSource, newSource, 92, "Convert '.Create<string>()' to '.Build<string>().Create().");
+            VerifyRefactoring(oldSource, newSource, "Convert '.Create<string>()' to '.Build<string>().Create().");
         }
 
         [Theory]
@@ -101,7 +100,7 @@ namespace AdhocAnalyzers.Test.AutoFixture
         fixture.Create<string>();
     }
 }";
-            VerifyNoRefactoring(source, positionWithoutRefactoring);
+            VerifyNoRefactoringOld(source, positionWithoutRefactoring);
         }
 
         [Fact]
@@ -113,10 +112,10 @@ namespace AdhocAnalyzers.Test.AutoFixture
     void Method1()
     {
         var fixture = new Fixture();
-        fixture.Create<string, int>();
+        fixture.$$Create<string, int>();
     }
 }";
-            VerifyNoRefactoring(source, 100);
+            VerifyNoRefactoring(source);
         }
 
         [Fact]
@@ -128,10 +127,10 @@ namespace AdhocAnalyzers.Test.AutoFixture
     void Method1()
     {
         var fixture = new Fixture();
-        fixture.Foo<string>();
+        fixture.$$Foo<string>();
     }
 }";
-            VerifyNoRefactoring(source, 100);
+            VerifyNoRefactoring(source);
         }
 
         [Fact]
@@ -142,10 +141,10 @@ namespace AdhocAnalyzers.Test.AutoFixture
 {
     void Method1()
     {
-        new Create<string>();
+        new $$Create<string>();
     }
 }";
-            VerifyNoRefactoring(source, 56);
+            VerifyNoRefactoring(source);
         }
 
         [Fact]
@@ -157,10 +156,10 @@ namespace AdhocAnalyzers.Test.AutoFixture
     void Method1()
     {
         var fixture = new Fixture();
-        Func<string> foo = fixture.Create<string>;
+        Func<string> foo = fixture.$$Create<string>;
     }
 }";
-            VerifyNoRefactoring(source, 117);
+            VerifyNoRefactoring(source);
         }
 
         [Theory]

@@ -1,10 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 using FluentAssertions;
 
 using Microsoft.CodeAnalysis.CodeRefactorings;
 using Microsoft.CodeAnalysis.Options;
+
 using Roslyn.UnitTestFramework;
+
 using Xunit;
 
 namespace AdhocAnalyzers.Test.Helpers
@@ -13,8 +16,9 @@ namespace AdhocAnalyzers.Test.Helpers
     {
         protected abstract CodeRefactoringProvider GetCodeRefactoringProvider();
 
-        protected void VerifyNoRefactoring(string source, int position)
+        protected void VerifyNoRefactoring(string markup)
         {
+            MarkupTestFile.GetPosition(markup, out var source, out var position);
             var document = DocumentFactory.CreateDocument(source);
             var actions = GetCodeRefactoringProvider().GetCodeActions(document, position);
 
@@ -46,14 +50,21 @@ namespace AdhocAnalyzers.Test.Helpers
             Assert.Equal(expectedSource, actual);
         }
 
+        [Obsolete]
+        protected void VerifyNoRefactoringOld(string source, int position)
+        {
+            string markup = source.Insert(position, "$$");
+            Console.WriteLine(markup);
+            VerifyNoRefactoring(markup);
+        }
+
+        [Obsolete]
         protected void VerifyRefactoringOld(
             string oldSource,
             string newSource,
             int position,
             string codeActionTitle,
             IDictionary<OptionKey, object> changedOptionSet = null)
-        {
-            VerifyRefactoring(oldSource.Insert(position, "$$"), newSource, codeActionTitle, changedOptionSet);
-        }
+            => VerifyRefactoring(oldSource.Insert(position, "$$"), newSource, codeActionTitle, changedOptionSet);
     }
 }
