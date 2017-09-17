@@ -164,7 +164,7 @@ namespace AdhocAnalyzers.Test.AutoFixture
         [InlineData(112)]
         [InlineData(113)]
         [InlineData(82)]
-        public void AvailableOnEntireLine(int positionWithRefactoring)
+        public void AvailableOnEntireLineOld(int positionWithRefactoring)
         {
             var oldSource =
 @"class Class1
@@ -186,6 +186,31 @@ namespace AdhocAnalyzers.Test.AutoFixture
 }";
 
             VerifyRefactoringOld(oldSource, newSource, positionWithRefactoring, "Convert '.Create<string>()' to '.Build<string>().Create().");
+        }
+
+        [Theory]
+        [MarkupData(
+@"class Class1
+{
+    void Method1()
+    {
+        var fixture = new Fixture();
+[||]        [||]fixture[||].[||]Create[||]<[||]string[||]>[||]([||]);
+    }
+}")]
+        public void AvailableOnEntireLine(string oldMarkup)
+        {
+            var newSource =
+@"class Class1
+{
+    void Method1()
+    {
+        var fixture = new Fixture();
+        fixture.Build<string>().Create();
+    }
+}";
+
+            VerifyRefactoring(oldMarkup, newSource, "Convert '.Create<string>()' to '.Build<string>().Create().");
         }
 
         protected override CodeRefactoringProvider GetCodeRefactoringProvider() => new CreateToBuildRefactoringProvider();
