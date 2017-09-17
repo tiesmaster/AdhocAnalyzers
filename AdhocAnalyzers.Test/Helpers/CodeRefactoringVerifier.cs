@@ -4,7 +4,7 @@ using FluentAssertions;
 
 using Microsoft.CodeAnalysis.CodeRefactorings;
 using Microsoft.CodeAnalysis.Options;
-
+using Roslyn.UnitTestFramework;
 using Xunit;
 
 namespace AdhocAnalyzers.Test.Helpers
@@ -21,7 +21,17 @@ namespace AdhocAnalyzers.Test.Helpers
             actions.Should().BeEmpty("because no refactorings should have been registered");
         }
 
-        protected void VerifyRefactoring(
+        protected void VerifyRefactoringNew(
+            string initialMarkup,
+            string newSource,
+            string codeActionTitle,
+            IDictionary<OptionKey, object> changedOptionSet = null)
+        {
+            MarkupTestFile.GetPosition(initialMarkup, out var initialSource, out var position);
+            VerifyRefactoring(initialSource, newSource, position, codeActionTitle, changedOptionSet);
+        }
+
+            protected void VerifyRefactoring(
             string oldSource,
             string newSource,
             int position,

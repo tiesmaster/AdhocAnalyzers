@@ -19,7 +19,7 @@ namespace AdhocAnalyzers.Test.AutoFixture
     void Method1()
     {
         var fixture = new Fixture();
-        fixture.Create<string>();
+        fixture.$$Create<string>();
     }
 }";
             var newSource =
@@ -32,7 +32,7 @@ namespace AdhocAnalyzers.Test.AutoFixture
     }
 }";
 
-            VerifyRefactoring(oldSource, newSource, 100, "Convert '.Create<string>()' to '.Build<string>().Create().");
+            VerifyRefactoringNew(oldSource, newSource, "Convert '.Create<string>()' to '.Build<string>().Create().");
         }
 
         [Fact]
