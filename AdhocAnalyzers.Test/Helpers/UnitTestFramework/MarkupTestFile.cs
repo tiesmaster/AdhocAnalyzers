@@ -1,4 +1,5 @@
 ﻿// Copyright (c) Microsoft.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
+// Copied from Roslyn samples (dd8516b4b9:src/Samples/Shared/UnitTestFramework/MarkupTestFile.cs)
 
 using System;
 using System.Collections.Generic;
