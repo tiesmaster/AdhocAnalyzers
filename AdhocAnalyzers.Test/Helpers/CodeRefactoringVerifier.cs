@@ -23,7 +23,7 @@ namespace AdhocAnalyzers.Test.Helpers
 
         protected void VerifyRefactoring(
             string initialMarkup,
-            string expectedMarkup,
+            string expectedSource,
             string codeActionTitle,
             IDictionary<OptionKey, object> changedOptionSet = null)
         {
@@ -43,7 +43,7 @@ namespace AdhocAnalyzers.Test.Helpers
             document = document.ApplyCodeAction(codeActionToApply);
 
             var actual = document.ToStringAndFormat(changedOptionSet);
-            Assert.Equal(expectedMarkup, actual);
+            Assert.Equal(expectedSource, actual);
         }
 
         protected void VerifyRefactoringOld(
