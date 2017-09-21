@@ -16,19 +16,19 @@ namespace AdhocAnalyzers.Test.Prism
         [Fact]
         public void EmptySource_ShouldNotProvideRefactoring()
         {
-            var source = "";
-            VerifyNoRefactoringOld(source, 0);
+            var source = "$$";
+            VerifyNoRefactoring(source);
         }
 
         [Fact]
         public void EmptyClass_ShouldNotProvideRefactoring()
         {
             var source =
-@"class Class1
+@"$$class Class1
 {
 }";
 
-            VerifyNoRefactoringOld(source, 0);
+            VerifyNoRefactoring(source);
         }
 
         [Theory]
