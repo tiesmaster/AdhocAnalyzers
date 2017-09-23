@@ -2,6 +2,7 @@
 
 using AdhocAnalyzers.Prism;
 using AdhocAnalyzers.Test.Helpers;
+using AdhocAnalyzers.Test.Helpers.Xunit;
 
 using Microsoft.CodeAnalysis.CodeRefactorings;
 using Microsoft.CodeAnalysis.CSharp.Formatting;
@@ -32,47 +33,37 @@ namespace AdhocAnalyzers.Test.Prism
         }
 
         [Theory]
-        [InlineData(0)]
-        [InlineData(52)]
-        [InlineData(89)]
-        [InlineData(156)]
-        [InlineData(214)]
-        public void PropertyWithBackingField_PositionOutsideProperty_ShouldNotProvideRefactoring(int position)
-        {
-            var source =
-@"class Class1
+        [MarkupData(
+@"[||]class Class1
 {
     private int _property1;
 
-    public int Property1
+    [||]public int Property1
     {
-        get
+        [||]get
         {
             return _property1;
         }
-        set
+        [||]set
         {
             _property1 = value;
-        }
+        }[||]
     }
-}";
-
-            VerifyNoRefactoringOld(source, position);
+}")]
+        public void PropertyWithBackingField_PositionOutsideProperty_ShouldNotProvideRefactoring(string markup)
+        {
+            VerifyNoRefactoring(markup);
         }
 
         [Theory]
-        [InlineData(0)]
-        [InlineData(21)]
-        [InlineData(57)]
-        public void AutoProperty_ShouldNotProvideRefactoring(int position)
-        {
-            var source =
-@"class Class1
+        [MarkupData(
+@"[||]class Class1
 {
-    public int Property1 { get; set; }
-}";
-
-            VerifyNoRefactoringOld(source, position);
+    [||]public int Property1 { get; set; }
+[||]}")]
+        public void AutoProperty_ShouldNotProvideRefactoring(string markup)
+        {
+            VerifyNoRefactoring(markup);
         }
 
         [Theory]
