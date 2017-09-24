@@ -33,7 +33,7 @@ namespace AdhocAnalyzers.Prism
                 if (isInsideSetter)
                 {
                     context.RegisterRefactoring(
-                        CodeAction.Create("Convert to PRISM property", token =>
+                        CodeAction.Create("Convert to PRISM property", _ =>
                         {
                             var newSetPropertyStatement = SyntaxFactory
                                 .ParseExpression($"SetProperty(ref {fieldIdentifier.Identifier.ValueText}, value)")

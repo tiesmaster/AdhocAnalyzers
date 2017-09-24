@@ -33,6 +33,58 @@ namespace AdhocAnalyzers.Test.Xunit
             VerifyNoRefactoring(source);
         }
 
+        [Fact]
+        public void UnitTestWithExistingFacts_ConvertsToFact_And_DoesNotAddNamespace()
+        {
+            var oldSource =
+@"using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
+
+[TestClass]
+public class Class1
+{
+    [TestMethod]
+    $$public void MyTestMethod1()
+    {
+    }
+
+    [TestMethod]
+    public void MyTestMethod2()
+    {
+    }
+
+    [Fact]
+    public void Fact()
+    {
+    }
+}";
+
+            var newSource =
+@"using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
+
+[TestClass]
+public class Class1
+{
+    [Fact]
+    public void MyTestMethod1()
+    {
+    }
+
+    [TestMethod]
+    public void MyTestMethod2()
+    {
+    }
+
+    [Fact]
+    public void Fact()
+    {
+    }
+}";
+
+            VerifyRefactoring(oldSource, newSource, "Convert MSTest method to Fact");
+        }
+
         protected override CodeRefactoringProvider GetCodeRefactoringProvider()
         {
             return new MstestToXunitTRefactoringProvider();
