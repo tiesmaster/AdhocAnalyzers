@@ -7,6 +7,7 @@ using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeRefactorings;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Simplification;
 
 namespace AdhocAnalyzers.Xunit
 {
@@ -24,13 +25,16 @@ namespace AdhocAnalyzers.Xunit
                 context.RegisterRefactoring(
                     CodeAction.Create("Convert MSTest method to Fact", _ =>
                     {
-                        var testMethodToken = methodDeclaration
-                            .DescendantTokens()
-                            .Single(token => token.IsKind(SyntaxKind.IdentifierToken) && token.ValueText == "TestMethod");
+                        var testMethodAttributeIdentifier = methodDeclaration
+                            .DescendantNodes()
+                            .OfType<IdentifierNameSyntax>()
+                            .Single(identifier => identifier.Identifier.ValueText == "TestMethod");
 
-                        var factToken = SyntaxFactory.Identifier("Fact");
+                        var factAttributeIdentifier = SyntaxFactory
+                            .ParseName("Xunit.FactAttribute")
+                            .WithAdditionalAnnotations(Simplifier.Annotation);
 
-                        var newRoot = root.ReplaceToken(testMethodToken, factToken);
+                        var newRoot = root.ReplaceNode(testMethodAttributeIdentifier, factAttributeIdentifier);
                         return Task.FromResult(context.Document.WithSyntaxRoot(newRoot));
                     }));
             }
