@@ -17,19 +17,19 @@ namespace AdhocAnalyzers.Test.Prism
         [Fact]
         public void EmptySource_ShouldNotProvideRefactoring()
         {
-            var source = "$$";
-            VerifyNoRefactoring(source);
+            var markupSource = "$$";
+            VerifyNoRefactoring(markupSource);
         }
 
         [Fact]
         public void EmptyClass_ShouldNotProvideRefactoring()
         {
-            var source =
+            var markupSource =
 @"$$class Class1
 {
 }";
 
-            VerifyNoRefactoring(source);
+            VerifyNoRefactoring(markupSource);
         }
 
         [Theory]
@@ -50,9 +50,9 @@ namespace AdhocAnalyzers.Test.Prism
         }[||]
     }
 }")]
-        public void PropertyWithBackingField_PositionOutsideProperty_ShouldNotProvideRefactoring(string markup)
+        public void PropertyWithBackingField_PositionOutsideProperty_ShouldNotProvideRefactoring(string markupSource)
         {
-            VerifyNoRefactoring(markup);
+            VerifyNoRefactoring(markupSource);
         }
 
         [Theory]
@@ -61,38 +61,32 @@ namespace AdhocAnalyzers.Test.Prism
 {
     [||]public int Property1 { get; set; }
 [||]}")]
-        public void AutoProperty_ShouldNotProvideRefactoring(string markup)
+        public void AutoProperty_ShouldNotProvideRefactoring(string markupSource)
         {
-            VerifyNoRefactoring(markup);
+            VerifyNoRefactoring(markupSource);
         }
 
         [Theory]
-        [InlineData(0)]
-        [InlineData(52)]
-        [InlineData(89)]
-        [InlineData(156)]
-        [InlineData(184)]
-        public void PropertyAlreadyPrismProperty_ShouldNotProvideRefactoring(int position)
-        {
-            var source =
-@"class Class1
+        [MarkupData(
+@"[||]class Class1
 {
     private int _property1;
 
-    public int Property1
+    [||]public int Property1
     {
-        get
+        [||]get
         {
             return _property1;
         }
-        set
+        [||]set
         {
-            SetProperty(ref _property1, value);
+            [||]SetProperty(ref _property1, value);
         }
     }
-}";
-
-            VerifyNoRefactoringOld(source, position);
+}")]
+        public void PropertyAlreadyPrismProperty_ShouldNotProvideRefactoring(string markupSource)
+        {
+            VerifyNoRefactoring(markupSource);
         }
 
         [Fact]
@@ -286,7 +280,7 @@ namespace AdhocAnalyzers.Test.Prism
         [Fact]
         public void Property_WithOnlyGetter_ShouldNotProvideRefactoring()
         {
-            var source =
+            var markupSource =
 @"class Class1
 {
     private int _property1;
@@ -295,12 +289,12 @@ namespace AdhocAnalyzers.Test.Prism
     {
         get
         {
-            return _property1;
+            $$return _property1;
         }
     }
 }";
 
-            VerifyNoRefactoringOld(source, 117);
+            VerifyNoRefactoring(markupSource);
         }
 
         protected override CodeRefactoringProvider GetCodeRefactoringProvider()
