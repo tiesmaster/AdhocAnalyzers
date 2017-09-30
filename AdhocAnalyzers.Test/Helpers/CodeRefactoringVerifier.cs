@@ -49,22 +49,5 @@ namespace AdhocAnalyzers.Test.Helpers
             var actual = document.ToStringAndFormat(changedOptionSet);
             Assert.Equal(expectedSource, actual);
         }
-
-        [Obsolete]
-        protected void VerifyNoRefactoringOld(string source, int position)
-        {
-            string markup = source.Insert(position, "$$");
-            Console.WriteLine(markup);
-            VerifyNoRefactoring(markup);
-        }
-
-        [Obsolete]
-        protected void VerifyRefactoringOld(
-            string oldSource,
-            string newSource,
-            int position,
-            string codeActionTitle,
-            IDictionary<OptionKey, object> changedOptionSet = null)
-            => VerifyRefactoring(oldSource.Insert(position, "$$"), newSource, codeActionTitle, changedOptionSet);
     }
 }
