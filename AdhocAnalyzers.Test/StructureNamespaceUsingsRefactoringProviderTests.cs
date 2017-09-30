@@ -11,8 +11,8 @@ namespace AdhocAnalyzers.Test
         [Fact]
         public void NamespacesWithoutDots()
         {
-            var oldSource =
-@"using System;
+            var oldMarkupSource =
+@"$$using System;
 using Microsoft;
 
 class Class1
@@ -27,14 +27,14 @@ class Class1
 {
 }";
 
-            VerifyRefactoringOld(oldSource, newSource, 0, "Add newline betweeen using groups");
+            VerifyRefactoring(oldMarkupSource, newSource, "Add newline betweeen using groups");
         }
 
         [Fact]
         public void NamespaceWithSingleDot()
         {
-            var oldSource =
-@"using System;
+            var oldMarkupSource =
+@"$$using System;
 using System.Text;
 using Microsoft;
 
@@ -51,14 +51,14 @@ class Class1
 {
 }";
 
-            VerifyRefactoringOld(oldSource, newSource, 0, "Add newline betweeen using groups");
+            VerifyRefactoring(oldMarkupSource, newSource, "Add newline betweeen using groups");
         }
 
         [Fact]
         public void GroupsSeparatedWithCommentAndNotNewline()
         {
-            var oldSource =
-@"using System;
+            var oldMarkupSource =
+@"$$using System;
 using System.Text;
 // Hoi
 using Microsoft;
@@ -77,14 +77,14 @@ class Class1
 {
 }";
 
-            VerifyRefactoringOld(oldSource, newSource, 0, "Add newline betweeen using groups");
+            VerifyRefactoring(oldMarkupSource, newSource, "Add newline betweeen using groups");
         }
 
         [Fact]
         public void NamespaceWithMultipleDots()
         {
-            var oldSource =
-@"using System;
+            var oldMarkupSource =
+@"$$using System;
 using System.Threading.Tasks;
 using Microsoft;
 
@@ -101,14 +101,14 @@ class Class1
 {
 }";
 
-            VerifyRefactoringOld(oldSource, newSource, 0, "Add newline betweeen using groups");
+            VerifyRefactoring(oldMarkupSource, newSource, "Add newline betweeen using groups");
         }
 
         [Fact]
         public void ListOfNamespacesWithMultipleGroups_ShouldAddNewLinesBetweenAllGroups()
         {
-            var oldSource =
-@"using System;
+            var oldMarkupSource =
+@"$$using System;
 using System.Threading.Tasks;
 using Microsoft;
 using Xunit;
@@ -128,14 +128,14 @@ class Class1
 {
 }";
 
-            VerifyRefactoringOld(oldSource, newSource, 0, "Add newline betweeen using groups");
+            VerifyRefactoring(oldMarkupSource, newSource, "Add newline betweeen using groups");
         }
 
         [Fact]
         public void ListOfNamespacesWithMultipleGroupsWhereSomeGroupsHaveMultipleUsings_ShouldOnlyAddNewlinesBetweenToplevelGroups()
         {
-            var oldSource =
-@"using System;
+            var oldMarkupSource =
+@"$$using System;
 using System.Threading.Tasks;
 using Microsoft;
 using Microsoft.CodeAnalysis;
@@ -157,14 +157,14 @@ class Class1
 {
 }";
 
-            VerifyRefactoringOld(oldSource, newSource, 0, "Add newline betweeen using groups");
+            VerifyRefactoring(oldMarkupSource, newSource, "Add newline betweeen using groups");
         }
 
         [Fact]
         public void GroupsWhichAreAlreadySeparated_ShouldNotGetTwoNewlines()
         {
-            var oldSource =
-@"using System;
+            var oldMarkupSource =
+@"$$using System;
 using System.Threading.Tasks;
 using Microsoft;
 
@@ -185,49 +185,49 @@ class Class1
 {
 }";
 
-            VerifyRefactoringOld(oldSource, newSource, 0, "Add newline betweeen using groups");
+            VerifyRefactoring(oldMarkupSource, newSource, "Add newline betweeen using groups");
         }
 
         [Fact]
         public void NoUsings_ShouldNotProvideRefactoring()
         {
-            var source =
-@"class Class1
+            var markupSource =
+@"$$class Class1
 {
 }";
-            VerifyNoRefactoringOld(source, 0);
+            VerifyNoRefactoring(markupSource);
         }
 
         [Fact]
         public void OneUsings_ShouldNotProvideRefactoring()
         {
-            var source =
-@"using System;
+            var markupSource =
+@"$$using System;
 
 class Class1
 {
 }";
-            VerifyNoRefactoringOld(source, 0);
+            VerifyNoRefactoring(markupSource);
         }
 
         [Fact]
         public void TwoUsingsOfSameGroup_ShouldNotProvideRefactoring()
         {
-            var source =
-@"using System;
+            var markupSource =
+@"$$using System;
 using System.Threading.Tasks;
 
 class Class1
 {
 }";
-            VerifyNoRefactoringOld(source, 0);
+            VerifyNoRefactoring(markupSource);
         }
 
         [Fact]
         public void TwoGroupsWithExistingSeparator_ShouldNotProvideRefactoring()
         {
-            var source =
-@"using System;
+            var markupSource =
+@"$$using System;
 using System.Threading.Tasks;
 
 using Microsoft;
@@ -235,21 +235,21 @@ using Microsoft;
 class Class1
 {
 }";
-            VerifyNoRefactoringOld(source, 0);
+            VerifyNoRefactoring(markupSource);
         }
 
         [Fact]
         public void RefactoringShouldNotBeProvidedOutsideUsingsLocation()
         {
-            var source =
+            var markupSource =
 @"using System;
 using System.Threading.Tasks;
 using Microsoft;
-
+$$
 class Class1
 {
 }";
-            VerifyNoRefactoringOld(source, 64);
+            VerifyNoRefactoring(markupSource);
         }
 
         protected override CodeRefactoringProvider GetCodeRefactoringProvider()
