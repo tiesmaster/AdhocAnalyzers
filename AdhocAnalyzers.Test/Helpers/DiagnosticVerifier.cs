@@ -1,11 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 
 using Xunit;
@@ -14,15 +12,6 @@ namespace AdhocAnalyzers.Test.Helpers
 {
     public abstract class DiagnosticVerifier
     {
-        private static readonly MetadataReference CorlibReference = MetadataReference.CreateFromFile(typeof(object).GetTypeInfo().Assembly.Location);
-        private static readonly MetadataReference SystemCoreReference = MetadataReference.CreateFromFile(typeof(Enumerable).GetTypeInfo().Assembly.Location);
-        private static readonly MetadataReference CSharpSymbolsReference = MetadataReference.CreateFromFile(typeof(CSharpCompilation).GetTypeInfo().Assembly.Location);
-        private static readonly MetadataReference CodeAnalysisReference = MetadataReference.CreateFromFile(typeof(Compilation).GetTypeInfo().Assembly.Location);
-
-        internal static string DefaultFilePathPrefix = "Test";
-        internal static string CSharpDefaultFileExt = "cs";
-        internal static string TestProjectName = "TestProject";
-
         protected abstract DiagnosticAnalyzer GetDiagnosticAnalyzer();
 
         protected void VerifyDiagnostic(string source, params DiagnosticResult[] expected)
