@@ -92,7 +92,7 @@ namespace AdhocAnalyzers.Test.Prism
         [Fact]
         public void Property_WithRegularBackingField_ShouldProvideRefactoring()
         {
-            var oldSource =
+            var oldMarkupSource =
 @"class Class1
 {
     private int _property1;
@@ -105,7 +105,7 @@ namespace AdhocAnalyzers.Test.Prism
         }
         set
         {
-            _property1 = value;
+            $$_property1 = value;
         }
     }
 }";
@@ -127,13 +127,13 @@ namespace AdhocAnalyzers.Test.Prism
         }
     }
 }";
-            VerifyRefactoringOld(oldSource, newSource, 184, "Convert to PRISM property");
+            VerifyRefactoring(oldMarkupSource, newSource, "Convert to PRISM property");
         }
 
         [Fact]
         public void Property_WithOnlySetterSettingBackingField_ShouldProvideRefactoring()
         {
-            var oldSource =
+            var oldMarkupSource =
 @"class Class1
 {
     private int _property1;
@@ -142,7 +142,7 @@ namespace AdhocAnalyzers.Test.Prism
     {
         set
         {
-            _property1 = value;
+            $$_property1 = value;
         }
     }
 }";
@@ -160,13 +160,13 @@ namespace AdhocAnalyzers.Test.Prism
         }
     }
 }";
-            VerifyRefactoringOld(oldSource, newSource, 117, "Convert to PRISM property");
+            VerifyRefactoring(oldMarkupSource, newSource, "Convert to PRISM property");
         }
 
         [Fact]
         public void Property_AccessorsAreExpressionBodies_ShouldProvideRefactoring()
         {
-            var oldSource =
+            var oldMarkupSource =
 @"class Class1
 {
     private int _property1;
@@ -174,7 +174,7 @@ namespace AdhocAnalyzers.Test.Prism
     public int Property1
     {
         get => _property1;
-        set => _property1 = value;
+        set => $$_property1 = value;
     }
 }";
 
@@ -189,13 +189,13 @@ namespace AdhocAnalyzers.Test.Prism
         set => SetProperty(ref _property1, value);
     }
 }";
-            VerifyRefactoringOld(oldSource, newSource, 124, "Convert to PRISM property");
+            VerifyRefactoring(oldMarkupSource, newSource, "Convert to PRISM property");
         }
 
         [Fact]
         public void Property_SetterWithAdditionalLogic_ShouldProvideRefactoring()
         {
-            var oldSource =
+            var oldMarkupSource =
 @"class Class1
 {
     private int _property1;
@@ -208,7 +208,7 @@ namespace AdhocAnalyzers.Test.Prism
         }
         set
         {
-            _property1 = value;
+            $$_property1 = value;
             OnPropertyChanged();
         }
     }
@@ -232,13 +232,13 @@ namespace AdhocAnalyzers.Test.Prism
         }
     }
 }";
-            VerifyRefactoringOld(oldSource, newSource, 184, "Convert to PRISM property");
+            VerifyRefactoring(oldMarkupSource, newSource, "Convert to PRISM property");
         }
 
         [Fact]
         public void Property_WorkspaceWithDifferentFormattingOptions_ShouldReturnCodeFormattedAccordingToThat()
         {
-            var oldSource =
+            var oldMarkupSource =
 @"class Class1
 {
     private int _property1;
@@ -251,7 +251,7 @@ namespace AdhocAnalyzers.Test.Prism
         }
         set
         {
-            _property1 = value;
+            $$_property1 = value;
         }
     }
 }";
@@ -274,7 +274,7 @@ namespace AdhocAnalyzers.Test.Prism
     }
 }";
             var changedOptionSet = new Dictionary<OptionKey, object> { [CSharpFormattingOptions.SpaceAfterComma] = false };
-            VerifyRefactoringOld(oldSource, newSource, 184, "Convert to PRISM property", changedOptionSet);
+            VerifyRefactoring(oldMarkupSource, newSource, "Convert to PRISM property", changedOptionSet);
         }
 
         [Fact]
