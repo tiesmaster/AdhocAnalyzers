@@ -40,8 +40,9 @@ namespace AdhocAnalyzers.Test.Helpers
                 .Should()
                 .ContainSingle(
                     action => action.Title == codeActionTitle,
-                    "because the refactoring should register exactly one code action with title '{0}'",
-                    codeActionTitle)
+                    "because the refactoring should register exactly one code action with title '{0}', for input source:\n\n{1}",
+                    codeActionTitle,
+                    initialMarkup)
                 .Subject;
 
             document = document.ApplyCodeAction(codeActionToApply);
