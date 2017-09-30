@@ -18,12 +18,5 @@ automatisch installeren bij build?
 	* find out how to install a new version without uninstalling
 	* check if we can just replace the unpacked VSIX dll
 
-.NET Core
-    * create Dockerfile that performs the stuff in the core branch, in order to test the osx stuff on Windows
-	* get unit tests working on OSX
-
 add .editorconfig (check https://github.com/MakingSense/code-style-guides/blob/master/CSharp/.editorconfig)
 add keyboard shortcut to this refactoring
-
-copy in roslyn cursor testhelpers, and change test data to use that (MarkupTestFile)
-	and add support in VerifyRefactorings to check that outside the expected "hotzone" no refactorings are given
