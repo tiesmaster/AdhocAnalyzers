@@ -94,9 +94,9 @@ namespace AdhocAnalyzers.Test.AutoFixture
         fixture.Create<string>();
     [||]}
 [||]}")]
-        public void NotAvailableOutsideInvocationLine(string markup)
+        public void NotAvailableOutsideInvocationLine(string markupSource)
         {
-            VerifyNoRefactoring(markup);
+            VerifyNoRefactoring(markupSource);
         }
 
         [Fact]
@@ -159,36 +159,6 @@ namespace AdhocAnalyzers.Test.AutoFixture
         }
 
         [Theory]
-        [InlineData(100)]
-        [InlineData(90)]
-        [InlineData(112)]
-        [InlineData(113)]
-        [InlineData(82)]
-        public void AvailableOnEntireLineOld(int positionWithRefactoring)
-        {
-            var oldSource =
-@"class Class1
-{
-    void Method1()
-    {
-        var fixture = new Fixture();
-        fixture.Create<string>();
-    }
-}";
-            var newSource =
-@"class Class1
-{
-    void Method1()
-    {
-        var fixture = new Fixture();
-        fixture.Build<string>().Create();
-    }
-}";
-
-            VerifyRefactoringOld(oldSource, newSource, positionWithRefactoring, "Convert '.Create<string>()' to '.Build<string>().Create().");
-        }
-
-        [Theory]
         [MarkupData(
 @"class Class1
 {
@@ -198,7 +168,7 @@ namespace AdhocAnalyzers.Test.AutoFixture
 [||]        [||]fixture[||].[||]Create[||]<[||]string[||]>[||]([||]);
     }
 }")]
-        public void AvailableOnEntireLine(string oldMarkup)
+        public void AvailableOnEntireLine(string oldMarkupSource)
         {
             var newSource =
 @"class Class1
@@ -210,7 +180,7 @@ namespace AdhocAnalyzers.Test.AutoFixture
     }
 }";
 
-            VerifyRefactoring(oldMarkup, newSource, "Convert '.Create<string>()' to '.Build<string>().Create().");
+            VerifyRefactoring(oldMarkupSource, newSource, "Convert '.Create<string>()' to '.Build<string>().Create().");
         }
 
         protected override CodeRefactoringProvider GetCodeRefactoringProvider() => new CreateToBuildRefactoringProvider();
