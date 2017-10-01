@@ -14,6 +14,14 @@ namespace AdhocAnalyzers.Test.Helpers
         private static readonly MetadataReference CSharpSymbolsReference = MetadataReference.CreateFromFile(typeof(CSharpCompilation).GetTypeInfo().Assembly.Location);
         private static readonly MetadataReference CodeAnalysisReference = MetadataReference.CreateFromFile(typeof(Compilation).GetTypeInfo().Assembly.Location);
 
+        private static MetadataReference[] DefaultmetadataReferences
+            => new[] {
+                CorlibReference,
+                SystemCoreReference,
+                CSharpSymbolsReference,
+                CodeAnalysisReference
+            };
+
         internal static string DefaultFilePathPrefix = "Test";
         internal static string CSharpDefaultFileExt = "cs";
         internal static string TestProjectName = "TestProject";
@@ -30,10 +38,7 @@ namespace AdhocAnalyzers.Test.Helpers
             var solution = new AdhocWorkspace()
                 .CurrentSolution
                 .AddProject(projectId, TestProjectName, TestProjectName, LanguageNames.CSharp)
-                .AddMetadataReference(projectId, CorlibReference)
-                .AddMetadataReference(projectId, SystemCoreReference)
-                .AddMetadataReference(projectId, CSharpSymbolsReference)
-                .AddMetadataReference(projectId, CodeAnalysisReference);
+                .AddMetadataReferences(projectId, DefaultmetadataReferences);
 
             int count = 0;
             foreach (var source in sources)
