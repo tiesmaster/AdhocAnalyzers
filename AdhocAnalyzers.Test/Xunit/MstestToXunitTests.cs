@@ -1,11 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Reflection;
+
 using AdhocAnalyzers.Test.Helpers;
 using AdhocAnalyzers.Xunit;
+
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeRefactorings;
+
 using Xunit;
 
 namespace AdhocAnalyzers.Test.Xunit
@@ -90,6 +92,23 @@ public class Class1
         protected override CodeRefactoringProvider GetCodeRefactoringProvider()
         {
             return new MstestToXunitTRefactoringProvider();
+        }
+
+        protected override IEnumerable<MetadataReference> AdditionalMetadataReferences
+        {
+            get
+            {
+                var factAttributeTypeInfo = typeof(FactAttribute).GetTypeInfo();
+
+                var mscorlibFacadesAssemblyName = factAttributeTypeInfo
+                    .Assembly
+                    .GetReferencedAssemblies()
+                    .Single(asm => asm.Name == "System.Runtime");
+                var mscorlibFacadesAssembly = Assembly.Load(mscorlibFacadesAssemblyName);
+
+                yield return MetadataReference.CreateFromFile(mscorlibFacadesAssembly.Location);
+                yield return MetadataReference.CreateFromFile(factAttributeTypeInfo.Assembly.Location);
+            }
         }
     }
 }
