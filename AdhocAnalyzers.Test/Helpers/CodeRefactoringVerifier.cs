@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 using FluentAssertions;
 
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeRefactorings;
 using Microsoft.CodeAnalysis.Options;
 
@@ -15,10 +17,13 @@ namespace AdhocAnalyzers.Test.Helpers
     {
         protected abstract CodeRefactoringProvider GetCodeRefactoringProvider();
 
+        protected virtual IEnumerable<MetadataReference> AdditionalMetadataReferences
+            => Enumerable.Empty<MetadataReference>();
+
         protected void VerifyNoRefactoring(string markup)
         {
             MarkupTestFile.GetPosition(markup, out var source, out var position);
-            var document = DocumentFactory.CreateDocument(source);
+            var document = DocumentFactory.CreateDocument(source, AdditionalMetadataReferences.ToArray());
             var actions = GetCodeRefactoringProvider().GetCodeActions(document, position);
 
             actions.Should().BeEmpty("because no refactorings should have been registered");
@@ -31,7 +36,7 @@ namespace AdhocAnalyzers.Test.Helpers
             IDictionary<OptionKey, object> changedOptionSet = null)
         {
             MarkupTestFile.GetPosition(initialMarkup.NormalizeLineEndingsToDos(), out var initialSource, out var position);
-            var document = DocumentFactory.CreateDocument(initialSource);
+            var document = DocumentFactory.CreateDocument(initialSource, AdditionalMetadataReferences.ToArray());
 
             var actions = GetCodeRefactoringProvider().GetCodeActions(document, position);
 

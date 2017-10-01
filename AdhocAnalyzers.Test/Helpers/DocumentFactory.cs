@@ -23,14 +23,14 @@ namespace AdhocAnalyzers.Test.Helpers
             };
         internal static string TestProjectName = "TestProject";
 
-        public static Document CreateDocument(string source)
+        public static Document CreateDocument(string source, params MetadataReference[] additionalMetadataReferences)
         {
             var projectId = ProjectId.CreateNewId(debugName: TestProjectName);
 
             var solution = new AdhocWorkspace()
                 .CurrentSolution
                 .AddProject(projectId, TestProjectName, TestProjectName, LanguageNames.CSharp)
-                .AddMetadataReferences(projectId, DefaultmetadataReferences);
+                .AddMetadataReferences(projectId, DefaultmetadataReferences.Concat(additionalMetadataReferences));
 
             var newFileName = "Test0.cs";
             var documentId = DocumentId.CreateNewId(projectId, debugName: newFileName);
