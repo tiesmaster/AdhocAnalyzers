@@ -21,18 +21,10 @@ namespace AdhocAnalyzers.Test.Helpers
                 CSharpSymbolsReference,
                 CodeAnalysisReference
             };
-
-        internal static string DefaultFilePathPrefix = "Test";
-        internal static string CSharpDefaultFileExt = "cs";
         internal static string TestProjectName = "TestProject";
 
-        public static Document CreateDocument(string source) => CreateProject(source).Documents.First();
-
-        private static Project CreateProject(params string[] sources)
+        public static Document CreateDocument(string source)
         {
-            string fileNamePrefix = DefaultFilePathPrefix;
-            string fileExt = CSharpDefaultFileExt;
-
             var projectId = ProjectId.CreateNewId(debugName: TestProjectName);
 
             var solution = new AdhocWorkspace()
@@ -40,16 +32,11 @@ namespace AdhocAnalyzers.Test.Helpers
                 .AddProject(projectId, TestProjectName, TestProjectName, LanguageNames.CSharp)
                 .AddMetadataReferences(projectId, DefaultmetadataReferences);
 
-            int count = 0;
-            foreach (var source in sources)
-            {
-                var newFileName = fileNamePrefix + count + "." + fileExt;
-                var documentId = DocumentId.CreateNewId(projectId, debugName: newFileName);
-                solution = solution.AddDocument(documentId, newFileName, SourceText.From(source));
-                count++;
-            }
+            var newFileName = "Test0.cs";
+            var documentId = DocumentId.CreateNewId(projectId, debugName: newFileName);
+            solution = solution.AddDocument(documentId, newFileName, SourceText.From(source));
 
-            return solution.GetProject(projectId);
+            return solution.GetProject(projectId).Documents.First();
         }
     }
 }
