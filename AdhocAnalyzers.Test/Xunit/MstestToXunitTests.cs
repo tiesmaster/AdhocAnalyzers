@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 
 using AdhocAnalyzers.Test.Helpers;
+using AdhocAnalyzers.Test.Helpers.Xunit;
 using AdhocAnalyzers.Xunit;
 
 using Microsoft.CodeAnalysis;
@@ -35,10 +36,8 @@ namespace AdhocAnalyzers.Test.Xunit
             VerifyNoRefactoring(source);
         }
 
-        [Fact]
-        public void UnitTestWithExistingFacts_ConvertsToFact_And_DoesNotAddNamespace()
-        {
-            var oldSource =
+        [Theory]
+        [MarkupData(
 @"using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Xunit;
 
@@ -46,7 +45,7 @@ using Xunit;
 public class Class1
 {
     [TestMethod]
-    $$public void MyTestMethod1()
+    [||]public void MyTestMethod1()
     {
     }
 
@@ -59,8 +58,9 @@ public class Class1
     public void Fact()
     {
     }
-}";
-
+}")]
+        public void UnitTestWithExistingFacts_ConvertsToFact_And_DoesNotAddNamespace(string markupSource)
+        {
             var newSource =
 @"using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Xunit;
@@ -84,7 +84,7 @@ public class Class1
     }
 }";
 
-            VerifyRefactoring(oldSource, newSource, "Convert MSTest method to Fact");
+            VerifyRefactoring(markupSource, newSource, "Convert MSTest method to Fact");
         }
 
         // TODO: verify trivia around Fact (test: [TestMethod/*foo*/] ...)
