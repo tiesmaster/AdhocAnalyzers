@@ -20,7 +20,9 @@ namespace AdhocAnalyzers.Xunit
             var root = await context.Document.GetSyntaxRootAsync().ConfigureAwait(false);
             var currentNode = root.FindNode(context.Span);
 
-            if ((currentNode is MethodDeclarationSyntax methodDeclaration) && IsMsTestMethod(methodDeclaration))
+            var methodDeclaration = currentNode.AncestorsAndSelf().OfType<MethodDeclarationSyntax>().FirstOrDefault();
+
+            if (methodDeclaration != null && IsMsTestMethod(methodDeclaration))
             {
                 context.RegisterRefactoring(
                     CodeAction.Create("Convert MSTest method to Fact", _ =>

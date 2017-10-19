@@ -44,9 +44,9 @@ using Xunit;
 [TestClass]
 public class Class1
 {
-    [TestMethod]
+    [||][TestMethod]
     [||]public void MyTestMethod1()
-    {
+    {[||]
     }
 
     [TestMethod]
