@@ -8,6 +8,7 @@ using Microsoft.CodeAnalysis.CodeRefactorings;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.CodeAnalysis.Editing;
 
 namespace AdhocAnalyzers.Xunit
 {
@@ -37,7 +38,7 @@ namespace AdhocAnalyzers.Xunit
                             .WithAdditionalAnnotations(Simplifier.Annotation);
 
                         var newRoot = root.ReplaceNode(testMethodAttributeIdentifier, factAttributeIdentifier);
-                        return Task.FromResult(context.Document.WithSyntaxRoot(newRoot));
+                        return ImportAdder.AddImportsAsync(context.Document.WithSyntaxRoot(newRoot));
                     }));
             }
         }
