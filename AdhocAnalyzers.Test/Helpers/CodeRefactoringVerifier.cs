@@ -52,7 +52,8 @@ namespace AdhocAnalyzers.Test.Helpers
             document = document.ApplyCodeAction(codeActionToApply);
 
             var actual = document.ToStringAndFormat(changedOptionSet);
-            Assert.Equal(expectedSource.NormalizeLineEndingsToDos(), actual);
+            expectedSource.NormalizeLineEndingsToDos().Should().Be(actual);
+            //Assert.Equal(expectedSource.NormalizeLineEndingsToDos(), actual);
         }
     }
 }

@@ -186,6 +186,62 @@ public class Class1
             VerifyRefactoring(oldSource, newSource, "Convert MSTest method to Fact");
         }
 
+        [Fact]
+        public void UnitTestWithMultipleTestMethodsAndTestInitialize_ConvertsToFact_AddsConstructor()
+        {
+            var oldSource =
+@"using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+[TestClass]
+public class Class1
+{
+    [TestInitialize]
+    public void Setup()
+    {
+    }
+
+    [TestMethod]
+    $$public void MyTestMethod1()
+    {
+    }
+
+    [TestMethod]
+    public void MyTestMethod2()
+    {
+    }
+}";
+
+            var newSource =
+@"using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
+
+[TestClass]
+public class Class1
+{
+    public Class1()
+    {
+        Setup();
+    }
+
+    [TestInitialize]
+    public void Setup()
+    {
+    }
+
+    [Fact]
+    public void MyTestMethod1()
+    {
+    }
+
+    [TestMethod]
+    public void MyTestMethod2()
+    {
+    }
+}";
+
+            VerifyRefactoring(oldSource, newSource, "Convert MSTest method to Fact");
+        }
+
         // TODO: verify trivia around Fact (test: [TestMethod/*foo*/] ...)
 
         protected override CodeRefactoringProvider GetCodeRefactoringProvider()
