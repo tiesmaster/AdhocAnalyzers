@@ -209,14 +209,20 @@ public class Class1
     public void MyTestMethod2()
     {
     }
+
+    [TestCleanup]
+    public void Cleanup()
+    {
+    }
 }";
 
             var newSource =
-@"using Microsoft.VisualStudio.TestTools.UnitTesting;
+@"using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Xunit;
 
 [TestClass]
-public class Class1
+public class Class1 : IDisposable
 {
     public Class1()
     {
@@ -236,6 +242,16 @@ public class Class1
     [TestMethod]
     public void MyTestMethod2()
     {
+    }
+
+    [TestCleanup]
+    public void Cleanup()
+    {
+    }
+
+    public void Dispose()
+    {
+        Cleanup();
     }
 }";
 

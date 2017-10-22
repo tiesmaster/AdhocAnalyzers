@@ -38,6 +38,7 @@ namespace AdhocAnalyzers.Xunit
             var newRoot = ConvertMsTestMethodToFact(root, msTestMethodDeclaration);
             newRoot = RemoveTestClassAttributeIfNeeded(newRoot);
             newRoot = AddCompatibilityConstructorIfNeeded(newRoot);
+            newRoot = AddCompatibilityDisposerIfNeeded(newRoot);
 
             return ImportAdder.AddImportsAsync(originalDocument.WithSyntaxRoot(newRoot));
         }
@@ -117,6 +118,35 @@ namespace AdhocAnalyzers.Xunit
 
                 newRoot = newRoot.ReplaceNode(classDeclaration,
                     classDeclaration.WithMembers(classDeclaration.Members.Insert(0, newConstructor)));
+            }
+
+            return newRoot;
+        }
+
+        private static SyntaxNode AddCompatibilityDisposerIfNeeded(SyntaxNode newRoot)
+        {
+            var testCleanupAttributeToken = newRoot
+                .DescendantTokens()
+                .SingleOrDefault(token => token.IsKind(SyntaxKind.IdentifierToken) && token.ValueText == "TestCleanup");
+
+            if (!testCleanupAttributeToken.IsKind(SyntaxKind.None))
+            {
+                var testCleanupMethodDeclaration = testCleanupAttributeToken.Parent
+                    .Ancestors().OfType<MethodDeclarationSyntax>().First();
+                var classDeclaration = (ClassDeclarationSyntax)testCleanupMethodDeclaration.Parent;
+                var disposeMethodDeclaration = SyntaxFactory
+                    .MethodDeclaration(SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.VoidKeyword)), "Dispose")
+                    .AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword))
+                    .WithBody(SyntaxFactory.Block(
+                        SyntaxFactory.ParseStatement($"{testCleanupMethodDeclaration.Identifier.ValueText}();")));
+
+                newRoot = newRoot.ReplaceNode(classDeclaration,
+                    classDeclaration
+                        .WithMembers(classDeclaration.Members.Add(disposeMethodDeclaration))
+                        .WithBaseList((classDeclaration.BaseList ?? SyntaxFactory.BaseList())
+                            .AddTypes(SyntaxFactory.SimpleBaseType(SyntaxFactory.ParseTypeName("System.IDisposable"))))
+                        // This is to remove the additional line ending after the class (when the base list was empty)
+                        .WithIdentifier(classDeclaration.Identifier.WithoutTrivia()));
             }
 
             return newRoot;
