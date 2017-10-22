@@ -144,8 +144,7 @@ public class Class1
 }";
 
             var newSource =
-@"using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Xunit;
+@"using Xunit;
 
 public class Class1
 {

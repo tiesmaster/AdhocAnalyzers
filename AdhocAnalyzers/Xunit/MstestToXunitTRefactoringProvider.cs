@@ -48,6 +48,12 @@ namespace AdhocAnalyzers.Xunit
                             var attributeListOfTestClassAttribute = testClassAttributeToken.Parent.Ancestors().OfType<AttributeListSyntax>().First();
 
                             newRoot = newRoot.RemoveNode(attributeListOfTestClassAttribute, SyntaxRemoveOptions.KeepNoTrivia);
+
+                            var msTestImportDirective = newRoot.DescendantNodes().OfType<UsingDirectiveSyntax>().SingleOrDefault(un => un.Name.ToString() == "Microsoft.VisualStudio.TestTools.UnitTesting");
+                            if (msTestImportDirective != null)
+                            {
+                                newRoot = newRoot.RemoveNode(msTestImportDirective, SyntaxRemoveOptions.KeepNoTrivia);
+                            }
                         }
 
                         return ImportAdder.AddImportsAsync(context.Document.WithSyntaxRoot(newRoot));
