@@ -242,8 +242,6 @@ public class Class1
             VerifyRefactoring(oldSource, newSource, "Convert MSTest method to Fact");
         }
 
-        // TODO: verify trivia around Fact (test: [TestMethod/*foo*/] ...)
-
         protected override CodeRefactoringProvider GetCodeRefactoringProvider()
         {
             return new MstestToXunitTRefactoringProvider();

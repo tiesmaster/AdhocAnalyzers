@@ -8,7 +8,6 @@ using Microsoft.CodeAnalysis.CodeRefactorings;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
-using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.Simplification;
 
 namespace AdhocAnalyzers.Xunit
@@ -27,75 +26,100 @@ namespace AdhocAnalyzers.Xunit
             if (methodDeclaration != null && IsMsTestMethod(methodDeclaration))
             {
                 context.RegisterRefactoring(
-                    CodeAction.Create("Convert MSTest method to Fact", _ =>
-                    {
-                        var testMethodAttributeIdentifier = methodDeclaration
-                            .DescendantNodes()
-                            .OfType<IdentifierNameSyntax>()
-                            .Single(identifier => identifier.Identifier.ValueText == "TestMethod");
-
-                        var factAttributeIdentifier = SyntaxFactory
-                            .ParseName("Xunit.FactAttribute")
-                            .WithTriviaFrom(testMethodAttributeIdentifier)
-                            .WithAdditionalAnnotations(Simplifier.Annotation);
-
-                        var newRoot = root.ReplaceNode(testMethodAttributeIdentifier, factAttributeIdentifier);
-
-                        if (!newRoot.DescendantNodesAndSelf().OfType<MethodDeclarationSyntax>().Any(IsMsTestMethod))
-                        {
-                            var testClassAttributeToken = newRoot
-                                .DescendantTokens()
-                                .Single(token => token.IsKind(SyntaxKind.IdentifierToken) && token.ValueText == "TestClass");
-                            var attributeListOfTestClassAttribute = testClassAttributeToken
-                                .Parent
-                                .Ancestors()
-                                .OfType<AttributeListSyntax>()
-                                .First();
-
-                            newRoot = newRoot.RemoveNode(attributeListOfTestClassAttribute, SyntaxRemoveOptions.KeepNoTrivia);
-
-                            var msTestImportDirective = newRoot
-                                .DescendantNodes()
-                                .OfType<UsingDirectiveSyntax>()
-                                .SingleOrDefault(un => un.Name.ToString() == "Microsoft.VisualStudio.TestTools.UnitTesting");
-
-                            if (msTestImportDirective != null)
-                            {
-                                newRoot = newRoot.RemoveNode(msTestImportDirective, SyntaxRemoveOptions.KeepNoTrivia);
-                            }
-                        }
-
-                        var testInitializeAttributeToken = newRoot
-                            .DescendantTokens()
-                            .SingleOrDefault(token => token.IsKind(SyntaxKind.IdentifierToken) && token.ValueText == "TestInitialize");
-
-                        if (!testInitializeAttributeToken.IsKind(SyntaxKind.None))
-                        {
-                            var testInitializerMethodDeclaration = testInitializeAttributeToken
-                                .Parent
-                                .Ancestors()
-                                .OfType<MethodDeclarationSyntax>()
-                                .First();
-                            var classDeclaration = (ClassDeclarationSyntax)testInitializerMethodDeclaration.Parent;
-
-                            var newConstructor = SyntaxFactory
-                                .ConstructorDeclaration(classDeclaration.Identifier.WithoutTrivia())
-                                .AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword))
-                                .WithBody(SyntaxFactory.Block(
-                                    SyntaxFactory.ParseStatement($"{testInitializerMethodDeclaration.Identifier.ValueText}();")));
-
-                            var oldMembers = classDeclaration.Members;
-
-                            var newMembers = oldMembers.Insert(0, newConstructor);
-
-                            var newClassDeclaration = classDeclaration.WithMembers(newMembers);
-
-                            newRoot = newRoot.ReplaceNode(classDeclaration, newClassDeclaration);
-                        }
-
-                        return ImportAdder.AddImportsAsync(context.Document.WithSyntaxRoot(newRoot));
-                    }));
+                    CodeAction.Create("Convert MSTest method to Fact", _ => ConvertSingleTestToFactAsync(context.Document, root, methodDeclaration)));
             }
+        }
+
+        private static Task<Document> ConvertSingleTestToFactAsync(
+            Document originalDocument,
+            SyntaxNode root,
+            MethodDeclarationSyntax msTestMethodDeclaration)
+        {
+            var newRoot = ConvertMsTestMethodToFact(root, msTestMethodDeclaration);
+            newRoot = RemoveTestClassAttributeIfNeeded(newRoot);
+            newRoot = AddCompatibilityConstructorIfNeeded(newRoot);
+
+            return ImportAdder.AddImportsAsync(originalDocument.WithSyntaxRoot(newRoot));
+        }
+
+        private static SyntaxNode ConvertMsTestMethodToFact(SyntaxNode root, MethodDeclarationSyntax msTestMethodDeclaration)
+        {
+            var msTestMethodAttributeIdentifier = msTestMethodDeclaration
+                .DescendantNodes().OfType<IdentifierNameSyntax>()
+                .Single(identifier => identifier.Identifier.ValueText == "TestMethod");
+
+            var factAttributeIdentifier = SyntaxFactory
+                .ParseName("Xunit.FactAttribute")
+                .WithTriviaFrom(msTestMethodAttributeIdentifier)
+                .WithAdditionalAnnotations(Simplifier.Annotation);
+
+            return root.ReplaceNode(msTestMethodAttributeIdentifier, factAttributeIdentifier);
+        }
+
+        private static SyntaxNode RemoveTestClassAttributeIfNeeded(SyntaxNode root)
+        {
+            // Did we remove the last Mstest method?
+
+            if (!root.DescendantNodesAndSelf().OfType<MethodDeclarationSyntax>().Any(IsMsTestMethod))
+            {
+                root = RemoveTestClassAttribute(root);
+                root = RemoveUnusedMsTestImportDirective(root);
+            }
+
+            return root;
+        }
+
+        private static SyntaxNode RemoveUnusedMsTestImportDirective(SyntaxNode root)
+        {
+            var msTestImportDirective = root
+                .DescendantNodes()
+                .OfType<UsingDirectiveSyntax>()
+                .SingleOrDefault(un => un.Name.ToString() == "Microsoft.VisualStudio.TestTools.UnitTesting");
+
+            if (msTestImportDirective != null)
+            {
+                root = root.RemoveNode(msTestImportDirective, SyntaxRemoveOptions.KeepNoTrivia);
+            }
+
+            return root;
+        }
+
+        private static SyntaxNode RemoveTestClassAttribute(SyntaxNode root)
+        {
+            var testClassAttributeToken = root
+                .DescendantTokens()
+                .Single(token => token.IsKind(SyntaxKind.IdentifierToken) && token.ValueText == "TestClass");
+            var attributeListOfTestClassAttribute = testClassAttributeToken
+                .Parent
+                .Ancestors()
+                .OfType<AttributeListSyntax>()
+                .First();
+
+            return root.RemoveNode(attributeListOfTestClassAttribute, SyntaxRemoveOptions.KeepNoTrivia);
+        }
+
+        private static SyntaxNode AddCompatibilityConstructorIfNeeded(SyntaxNode newRoot)
+        {
+            var testInitializeAttributeToken = newRoot
+                .DescendantTokens()
+                .SingleOrDefault(token => token.IsKind(SyntaxKind.IdentifierToken) && token.ValueText == "TestInitialize");
+
+            if (!testInitializeAttributeToken.IsKind(SyntaxKind.None))
+            {
+                var testInitializerMethodDeclaration = testInitializeAttributeToken.Parent
+                    .Ancestors().OfType<MethodDeclarationSyntax>().First();
+                var classDeclaration = (ClassDeclarationSyntax)testInitializerMethodDeclaration.Parent;
+                var newConstructor = SyntaxFactory
+                    .ConstructorDeclaration(classDeclaration.Identifier.WithoutTrivia())
+                    .AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword))
+                    .WithBody(SyntaxFactory.Block(
+                        SyntaxFactory.ParseStatement($"{testInitializerMethodDeclaration.Identifier.ValueText}();")));
+
+                newRoot = newRoot.ReplaceNode(classDeclaration,
+                    classDeclaration.WithMembers(classDeclaration.Members.Insert(0, newConstructor)));
+            }
+
+            return newRoot;
         }
 
         private static bool IsMsTestMethod(MethodDeclarationSyntax methodDeclaration)
