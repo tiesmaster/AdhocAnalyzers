@@ -157,6 +157,35 @@ public class Class1
             VerifyRefactoring(oldSource, newSource, "Convert MSTest method to Fact");
         }
 
+        [Fact]
+        public void TestMethodAttributeWithComments_ConvertsToFact_KeepsTrivia()
+        {
+            var oldSource =
+@"using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+[TestClass]
+public class Class1
+{
+    [TestMethod/*foo*/]
+    $$public void MyTestMethod1()
+    {
+    }
+}";
+
+            var newSource =
+@"using Xunit;
+
+public class Class1
+{
+    [Fact/*foo*/]
+    public void MyTestMethod1()
+    {
+    }
+}";
+
+            VerifyRefactoring(oldSource, newSource, "Convert MSTest method to Fact");
+        }
+
         // TODO: verify trivia around Fact (test: [TestMethod/*foo*/] ...)
 
         protected override CodeRefactoringProvider GetCodeRefactoringProvider()

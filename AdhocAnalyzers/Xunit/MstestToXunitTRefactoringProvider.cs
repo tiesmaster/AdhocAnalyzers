@@ -35,6 +35,7 @@ namespace AdhocAnalyzers.Xunit
 
                         var factAttributeIdentifier = SyntaxFactory
                             .ParseName("Xunit.FactAttribute")
+                            .WithTriviaFrom(testMethodAttributeIdentifier)
                             .WithAdditionalAnnotations(Simplifier.Annotation);
 
                         var newRoot = root.ReplaceNode(testMethodAttributeIdentifier, factAttributeIdentifier);
