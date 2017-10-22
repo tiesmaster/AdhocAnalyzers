@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
     <Metadata>
-        <Identity Id="AdhocAnalyzers.Tiesmaster.cb0a9e72-4238-4701-a540-5438a48f1ceb" Version="0.2" Language="en-US" Publisher="Thijs Brobbel"/>
+        <Identity Id="AdhocAnalyzers.Tiesmaster.cb0a9e72-4238-4701-a540-5438a48f1ceb" Version="0.3" Language="en-US" Publisher="Thijs Brobbel"/>
         <DisplayName>AdhocAnalyzers</DisplayName>
         <Description xml:space="preserve">Incubator project for adhoc analyzers, for various purposes (migrations, refactorings, etc.)
 </Description>
