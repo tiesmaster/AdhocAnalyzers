@@ -88,7 +88,7 @@ public class Class1
         }
 
         [Fact]
-        public void UnitTestWithoutExistingFacts_ConvertsToFact_And_AddsNamespace()
+        public void UnitTestWithoutExistingFactsButMultipleTestMethods_ConvertsToFact_And_AddsNamespace()
         {
             var oldSource =
 @"using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -121,6 +121,36 @@ public class Class1
 
     [TestMethod]
     public void MyTestMethod2()
+    {
+    }
+}";
+
+            VerifyRefactoring(oldSource, newSource, "Convert MSTest method to Fact");
+        }
+
+        [Fact]
+        public void UnitTestWithOnlySingleTestMethod_ConvertsToFact_RemovesTestClassAttribute_And_MsTestNamespace()
+        {
+            var oldSource =
+@"using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+[TestClass]
+public class Class1
+{
+    [TestMethod]
+    $$public void MyTestMethod1()
+    {
+    }
+}";
+
+            var newSource =
+@"using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
+
+public class Class1
+{
+    [Fact]
+    public void MyTestMethod1()
     {
     }
 }";

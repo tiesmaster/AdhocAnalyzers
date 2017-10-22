@@ -38,6 +38,18 @@ namespace AdhocAnalyzers.Xunit
                             .WithAdditionalAnnotations(Simplifier.Annotation);
 
                         var newRoot = root.ReplaceNode(testMethodAttributeIdentifier, factAttributeIdentifier);
+
+                        if (!newRoot.DescendantNodesAndSelf().OfType<MethodDeclarationSyntax>().Any(IsMsTestMethod))
+                        {
+                            var testClassAttributeToken = newRoot
+                                .DescendantTokens()
+                                .Single(token => token.IsKind(SyntaxKind.IdentifierToken) && token.ValueText == "TestClass");
+
+                            var attributeListOfTestClassAttribute = testClassAttributeToken.Parent.Ancestors().OfType<AttributeListSyntax>().First();
+
+                            newRoot = newRoot.RemoveNode(attributeListOfTestClassAttribute, SyntaxRemoveOptions.KeepNoTrivia);
+                        }
+
                         return ImportAdder.AddImportsAsync(context.Document.WithSyntaxRoot(newRoot));
                     }));
             }

@@ -34,9 +34,9 @@ namespace AdhocAnalyzers.Test.Helpers
 
             var newFileName = "Test0.cs";
             var documentId = DocumentId.CreateNewId(projectId, debugName: newFileName);
-            solution = solution.AddDocument(documentId, newFileName, SourceText.From(source));
+            solution = solution.AddDocument(documentId, newFileName, source);
 
-            return solution.GetProject(projectId).Documents.First();
+            return solution.GetDocument(documentId);
         }
     }
 }
