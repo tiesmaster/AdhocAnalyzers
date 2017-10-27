@@ -187,7 +187,7 @@ public class Class1
         }
 
         [Fact]
-        public void UnitTestWithMultipleTestMethodsAndTestInitialize_ConvertsToFact_AddsConstructor()
+        public void UnitTestWithMultipleTestMethodsAndTestInitializeAndCleanup_ConvertsToFact_AddsConstructorAndDisposer()
         {
             var oldSource =
 @"using Microsoft.VisualStudio.TestTools.UnitTesting;
