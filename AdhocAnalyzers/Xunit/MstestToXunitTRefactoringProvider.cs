@@ -103,12 +103,11 @@ namespace AdhocAnalyzers.Xunit
 
         private static SyntaxNode AddCompatibilityConstructorIfNeeded(SyntaxNode newRoot)
         {
-            var testInitializeAttributeToken = newRoot
-                .DescendantNodes()
-                .OfType<AttributeSyntax>()
-                .SelectMany(node => node
-                    .DescendantTokens())
-                    .SingleOrDefault(token => token.IsKind(SyntaxKind.IdentifierToken) && token.ValueText == "TestInitialize");
+            var testInitializeAttributeToken = (
+                from node in newRoot.DescendantNodes().OfType<AttributeSyntax>()
+                from token in node.DescendantTokens()
+                where token.IsKind(SyntaxKind.IdentifierToken) && token.ValueText == "TestInitialize"
+                select token).SingleOrDefault();
 
             if (!testInitializeAttributeToken.IsKind(SyntaxKind.None))
             {
@@ -130,12 +129,11 @@ namespace AdhocAnalyzers.Xunit
 
         private static SyntaxNode AddCompatibilityDisposerIfNeeded(SyntaxNode newRoot)
         {
-            var testCleanupAttributeToken = newRoot
-                .DescendantNodes()
-                .OfType<AttributeSyntax>()
-                .SelectMany(node => node
-                    .DescendantTokens())
-                    .SingleOrDefault(token => token.IsKind(SyntaxKind.IdentifierToken) && token.ValueText == "TestCleanup");
+            var testCleanupAttributeToken = (
+                from node in newRoot.DescendantNodes().OfType<AttributeSyntax>()
+                from token in node.DescendantTokens()
+                where token.IsKind(SyntaxKind.IdentifierToken) && token.ValueText == "TestCleanup"
+                select token).SingleOrDefault();
 
             if (!testCleanupAttributeToken.IsKind(SyntaxKind.None))
             {
