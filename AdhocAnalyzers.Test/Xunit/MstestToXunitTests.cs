@@ -59,7 +59,7 @@ public class Class1
     {
     }
 }")]
-        public void UnitTestWithExistingFacts_ConvertsToFact_And_DoesNotAddNamespace(string markupSource)
+        public void ConvertSingleFact_WithExistingFacts_DoesNotAddNamespace(string markupSource)
         {
             var newSource =
 @"using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -88,7 +88,7 @@ public class Class1
         }
 
         [Fact]
-        public void UnitTestWithoutExistingFactsButMultipleTestMethods_ConvertsToFact_And_AddsNamespace()
+        public void ConvertSingleFact_WithoutExistingXunitReferences_AddsNamespace()
         {
             var oldSource =
 @"using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -129,7 +129,7 @@ public class Class1
         }
 
         [Fact]
-        public void UnitTestWithOnlySingleTestMethod_ConvertsToFact_RemovesTestClassAttribute_And_MsTestNamespace()
+        public void ConvertSingleFact_WithOnlySingleTestMethod_RemovesTestClassAttribute_And_MsTestNamespace()
         {
             var oldSource =
 @"using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -158,7 +158,7 @@ public class Class1
         }
 
         [Fact]
-        public void TestMethodAttributeWithComments_ConvertsToFact_KeepsTrivia()
+        public void ConvertSingleFact_TestMethodAttributeWithComments_KeepsTrivia()
         {
             var oldSource =
 @"using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -187,7 +187,7 @@ public class Class1
         }
 
         [Fact]
-        public void UnitTestWithMultipleTestMethodsAndTestInitializeAndCleanup_ConvertsToFact_AddsConstructorAndDisposer()
+        public void ConvertSingleFact_WithTestInitializeAndCleanups_AddsConstructorAndDisposer()
         {
             var oldSource =
 @"using Microsoft.VisualStudio.TestTools.UnitTesting;
