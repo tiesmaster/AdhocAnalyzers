@@ -26,7 +26,9 @@ namespace AdhocAnalyzers.Xunit
             if (methodDeclaration != null && IsMsTestMethod(methodDeclaration))
             {
                 context.RegisterRefactoring(
-                    CodeAction.Create("Convert MSTest method to Fact", _ => ConvertSingleTestToFactAsync(context.Document, root, methodDeclaration)));
+                    CodeAction.Create(
+                        "Convert MSTest method to Fact",
+                        _ => ConvertSingleTestToFactAsync(context.Document, root, methodDeclaration)));
             }
         }
 
@@ -75,7 +77,7 @@ namespace AdhocAnalyzers.Xunit
             var msTestImportDirective = root
                 .DescendantNodes()
                 .OfType<UsingDirectiveSyntax>()
-                .SingleOrDefault(un => un.Name.ToString() == "Microsoft.VisualStudio.TestTools.UnitTesting");
+                .SingleOrDefault(directive => directive.Name.ToString() == "Microsoft.VisualStudio.TestTools.UnitTesting");
 
             if (msTestImportDirective != null)
             {
