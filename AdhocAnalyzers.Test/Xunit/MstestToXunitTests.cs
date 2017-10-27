@@ -196,7 +196,7 @@ public class Class1
 public class Class1
 {
     [TestInitialize]
-    public void Setup()
+    public void TestInitialize()
     {
     }
 
@@ -211,7 +211,7 @@ public class Class1
     }
 
     [TestCleanup]
-    public void Cleanup()
+    public void TestCleanup()
     {
     }
 }";
@@ -226,11 +226,11 @@ public class Class1 : IDisposable
 {
     public Class1()
     {
-        Setup();
+        TestInitialize();
     }
 
     [TestInitialize]
-    public void Setup()
+    public void TestInitialize()
     {
     }
 
@@ -245,13 +245,13 @@ public class Class1 : IDisposable
     }
 
     [TestCleanup]
-    public void Cleanup()
+    public void TestCleanup()
     {
     }
 
     public void Dispose()
     {
-        Cleanup();
+        TestCleanup();
     }
 }";
 

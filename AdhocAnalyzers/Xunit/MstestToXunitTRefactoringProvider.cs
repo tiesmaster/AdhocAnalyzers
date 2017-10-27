@@ -102,8 +102,11 @@ namespace AdhocAnalyzers.Xunit
         private static SyntaxNode AddCompatibilityConstructorIfNeeded(SyntaxNode newRoot)
         {
             var testInitializeAttributeToken = newRoot
-                .DescendantTokens()
-                .SingleOrDefault(token => token.IsKind(SyntaxKind.IdentifierToken) && token.ValueText == "TestInitialize");
+                .DescendantNodes()
+                .OfType<AttributeSyntax>()
+                .SelectMany(node => node
+                    .DescendantTokens())
+                    .SingleOrDefault(token => token.IsKind(SyntaxKind.IdentifierToken) && token.ValueText == "TestInitialize");
 
             if (!testInitializeAttributeToken.IsKind(SyntaxKind.None))
             {
@@ -126,8 +129,11 @@ namespace AdhocAnalyzers.Xunit
         private static SyntaxNode AddCompatibilityDisposerIfNeeded(SyntaxNode newRoot)
         {
             var testCleanupAttributeToken = newRoot
-                .DescendantTokens()
-                .SingleOrDefault(token => token.IsKind(SyntaxKind.IdentifierToken) && token.ValueText == "TestCleanup");
+                .DescendantNodes()
+                .OfType<AttributeSyntax>()
+                .SelectMany(node => node
+                    .DescendantTokens())
+                    .SingleOrDefault(token => token.IsKind(SyntaxKind.IdentifierToken) && token.ValueText == "TestCleanup");
 
             if (!testCleanupAttributeToken.IsKind(SyntaxKind.None))
             {
