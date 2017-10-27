@@ -16,12 +16,8 @@ namespace AdhocAnalyzers.Test.Xunit
     public class MstestToXunitTests : CodeRefactoringVerifier
     {
         // TODO:
-        //  * Add action to convert TestMethod -> Fact (fix namespace import)
-        //    + Add support to also add ctor/dispose, that will call TI/TC
-        //  * Add action to remove last mstest TM (and remove the mstest namespace import)
-        //     + Add support to convert TI/TC into ctor/dispose, and cleanup added ctor, and dispose
         //  * Add action to convert remaining test to xUnit, and
-        //      cleanup MStest -> xUnit bridge (remove TI/TC, and 
+        //      cleanup MStest -> xUnit bridge (remove TI/TC)
 
         // CONVERT ALL
         //  * Add action to convert all tests to xUnit
@@ -129,7 +125,7 @@ public class Class1
         }
 
         [Fact]
-        public void ConvertSingleFact_WithOnlySingleTestMethod_RemovesTestClassAttribute_And_MsTestNamespace()
+        public void ConvertSingleFact_WithLastRemainingTestMethod_RemovesTestClassAttribute_And_MsTestNamespace()
         {
             var oldSource =
 @"using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -346,6 +342,57 @@ public class Class1 : IDisposable
     public void Dispose()
     {
         TestCleanup();
+    }
+}";
+            VerifyRefactoring(oldSource, newSource, "Convert MSTest method to Fact");
+        }
+
+        [Fact]
+        public void ConvertSingleFact_WithLastRemainingTestMethodAndTestInitializeAndCleanups_ConvertsThemToConstructorAndDisposer()
+        {
+            var oldSource =
+@"using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+[TestClass]
+public class Class1
+{
+    [TestInitialize]
+    public void Setup()
+    {
+        int i = 0;
+    }
+
+    [TestMethod]
+    $$public void MyTestMethod1()
+    {
+    }
+
+    [TestCleanup]
+    public void Cleanup()
+    {
+        int j = 1;
+    }
+}";
+
+            var newSource =
+@"using System;
+using Xunit;
+
+public class Class1 : IDisposable
+{
+    public Class1()
+    {
+        int i = 0;
+    }
+
+    [Fact]
+    public void MyTestMethod1()
+    {
+    }
+
+    public void Dispose()
+    {
+        int j = 1;
     }
 }";
             VerifyRefactoring(oldSource, newSource, "Convert MSTest method to Fact");

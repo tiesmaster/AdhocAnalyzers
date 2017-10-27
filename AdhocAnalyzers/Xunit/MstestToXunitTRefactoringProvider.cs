@@ -1,4 +1,5 @@
-﻿using System.Composition;
+﻿using System;
+using System.Composition;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -67,9 +68,65 @@ namespace AdhocAnalyzers.Xunit
             {
                 root = RemoveTestClassAttribute(root);
                 root = RemoveUnusedMsTestImportDirective(root);
+                root = ConvertTestInitializeIfNeeded(root);
+                root = ConvertTestCleanupIfNeeded(root);
             }
 
             return root;
+        }
+
+        private static SyntaxNode ConvertTestInitializeIfNeeded(SyntaxNode root)
+        {
+            var testInitializeAttributeToken = (
+                from node in root.DescendantNodes().OfType<AttributeSyntax>()
+                from token in node.DescendantTokens()
+                where token.IsKind(SyntaxKind.IdentifierToken) && token.ValueText == "TestInitialize"
+                select token).SingleOrDefault();
+
+            if (testInitializeAttributeToken.IsKind(SyntaxKind.None))
+            {
+                return root;
+            }
+
+            var testInitializerMethodDeclaration = testInitializeAttributeToken.Parent
+                .Ancestors().OfType<MethodDeclarationSyntax>().First();
+            var classDeclaration = (ClassDeclarationSyntax)testInitializerMethodDeclaration.Parent;
+            var newConstructor = SyntaxFactory
+                .ConstructorDeclaration(classDeclaration.Identifier.WithoutTrivia())
+                .AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword))
+                .WithBody(testInitializerMethodDeclaration.Body);
+
+            return root.ReplaceNode(testInitializerMethodDeclaration, newConstructor);
+        }
+
+        private static SyntaxNode ConvertTestCleanupIfNeeded(SyntaxNode root)
+        {
+            var testCleanupAttributeToken = (
+                from node in root.DescendantNodes().OfType<AttributeSyntax>()
+                from token in node.DescendantTokens()
+                where token.IsKind(SyntaxKind.IdentifierToken) && token.ValueText == "TestCleanup"
+                select token).SingleOrDefault();
+
+            if (testCleanupAttributeToken.IsKind(SyntaxKind.None))
+            {
+                return root;
+            }
+
+            var testCleanupMethodDeclaration = testCleanupAttributeToken.Parent
+                .Ancestors().OfType<MethodDeclarationSyntax>().First();
+            var classDeclaration = (ClassDeclarationSyntax)testCleanupMethodDeclaration.Parent;
+            var disposeMethodDeclaration = SyntaxFactory
+                .MethodDeclaration(SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.VoidKeyword)), "Dispose")
+                .AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword))
+                .WithBody(testCleanupMethodDeclaration.Body);
+
+            return root.ReplaceNode(classDeclaration,
+                classDeclaration
+                    .ReplaceNode(testCleanupMethodDeclaration, disposeMethodDeclaration)
+                    .WithBaseList((classDeclaration.BaseList ?? SyntaxFactory.BaseList())
+                        .AddTypes(SyntaxFactory.SimpleBaseType(SyntaxFactory.ParseTypeName("System.IDisposable"))))
+                    // This is to remove the additional line ending after the class (when the base list was empty)
+                    .WithIdentifier(classDeclaration.Identifier.WithoutTrivia()));
         }
 
         private static SyntaxNode RemoveUnusedMsTestImportDirective(SyntaxNode root)
