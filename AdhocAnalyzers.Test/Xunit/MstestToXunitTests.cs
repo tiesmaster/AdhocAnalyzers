@@ -258,6 +258,99 @@ public class Class1 : IDisposable
             VerifyRefactoring(oldSource, newSource, "Convert MSTest method to Fact");
         }
 
+        [Fact]
+        public void ConvertSingleFact_AlreadyWithConstructorAndDisposer_DoesntAddThemAgain()
+        {
+            var oldSource =
+@"using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
+
+[TestClass]
+public class Class1 : IDisposable
+{
+    public Class1()
+    {
+        TestInitialize();
+    }
+
+    [TestInitialize]
+    public void TestInitialize()
+    {
+    }
+
+    [Fact]
+    public void MyTestMethod1()
+    {
+    }
+
+    [TestMethod]
+    $$public void MyTestMethod2()
+    {
+    }
+
+    [TestMethod]
+    public void MyTestMethod3()
+    {
+    }
+
+    [TestCleanup]
+    public void TestCleanup()
+    {
+    }
+
+    public void Dispose()
+    {
+        TestCleanup();
+    }
+}";
+
+            var newSource =
+@"using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
+
+[TestClass]
+public class Class1 : IDisposable
+{
+    public Class1()
+    {
+        TestInitialize();
+    }
+
+    [TestInitialize]
+    public void TestInitialize()
+    {
+    }
+
+    [Fact]
+    public void MyTestMethod1()
+    {
+    }
+
+    [Fact]
+    public void MyTestMethod2()
+    {
+    }
+
+    [TestMethod]
+    public void MyTestMethod3()
+    {
+    }
+
+    [TestCleanup]
+    public void TestCleanup()
+    {
+    }
+
+    public void Dispose()
+    {
+        TestCleanup();
+    }
+}";
+            VerifyRefactoring(oldSource, newSource, "Convert MSTest method to Fact");
+        }
+
         protected override CodeRefactoringProvider GetCodeRefactoringProvider()
         {
             return new MstestToXunitTRefactoringProvider();

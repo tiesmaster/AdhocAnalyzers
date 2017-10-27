@@ -109,7 +109,9 @@ namespace AdhocAnalyzers.Xunit
                 where token.IsKind(SyntaxKind.IdentifierToken) && token.ValueText == "TestInitialize"
                 select token).SingleOrDefault();
 
-            if (!testInitializeAttributeToken.IsKind(SyntaxKind.None))
+            var alreadyAdded = newRoot.DescendantNodes().OfType<ConstructorDeclarationSyntax>().Any();
+
+            if (!testInitializeAttributeToken.IsKind(SyntaxKind.None) && !alreadyAdded)
             {
                 var testInitializerMethodDeclaration = testInitializeAttributeToken.Parent
                     .Ancestors().OfType<MethodDeclarationSyntax>().First();
@@ -135,7 +137,12 @@ namespace AdhocAnalyzers.Xunit
                 where token.IsKind(SyntaxKind.IdentifierToken) && token.ValueText == "TestCleanup"
                 select token).SingleOrDefault();
 
-            if (!testCleanupAttributeToken.IsKind(SyntaxKind.None))
+            var alreadyAdded = newRoot
+                .DescendantNodes()
+                .OfType<MethodDeclarationSyntax>()
+                .Any(methodDeclaration => methodDeclaration.Identifier.ValueText == "Dispose");
+
+            if (!testCleanupAttributeToken.IsKind(SyntaxKind.None) && !alreadyAdded)
             {
                 var testCleanupMethodDeclaration = testCleanupAttributeToken.Parent
                     .Ancestors().OfType<MethodDeclarationSyntax>().First();
