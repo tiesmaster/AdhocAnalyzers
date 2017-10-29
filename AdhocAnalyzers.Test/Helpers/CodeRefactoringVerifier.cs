@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 using FluentAssertions;
@@ -51,9 +52,16 @@ namespace AdhocAnalyzers.Test.Helpers
 
             document = document.ApplyCodeAction(codeActionToApply);
 
+            var expected = expectedSource.NormalizeLineEndingsToDos();
             var actual = document.ToStringAndFormat(changedOptionSet);
-            expectedSource.NormalizeLineEndingsToDos().Should().Be(actual);
-            //Assert.Equal(expectedSource.NormalizeLineEndingsToDos(), actual);
+
+            // Console.WriteLine("Expected:");
+            // Console.WriteLine(expected);
+
+            // Console.WriteLine("Actual:");
+            // Console.WriteLine(actual);
+
+            actual.Should().Be(expected);
         }
     }
 }
