@@ -39,9 +39,9 @@ namespace AdhocAnalyzers.Xunit
             MethodDeclarationSyntax msTestMethodDeclaration)
         {
             var newRoot = ConvertMsTestMethodToFact(root, msTestMethodDeclaration);
-            newRoot = RemoveTestClassAttributeIfNeeded(newRoot);
             newRoot = AddCompatibilityConstructorIfNeeded(newRoot);
             newRoot = AddCompatibilityDisposerIfNeeded(newRoot);
+            newRoot = RemoveTestClassAttributeIfNeeded(newRoot);
 
             return ImportAdder.AddImportsAsync(originalDocument.WithSyntaxRoot(newRoot));
         }
@@ -83,6 +83,8 @@ namespace AdhocAnalyzers.Xunit
                 where token.IsKind(SyntaxKind.IdentifierToken) && token.ValueText == "TestInitialize"
                 select token).SingleOrDefault();
 
+            var compatibilityConstructorPresent = root.DescendantNodes().OfType<ConstructorDeclarationSyntax>().Any();
+
             if (testInitializeAttributeToken.IsKind(SyntaxKind.None))
             {
                 return root;
@@ -96,7 +98,16 @@ namespace AdhocAnalyzers.Xunit
                 .AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword))
                 .WithBody(testInitializerMethodDeclaration.Body);
 
-            return root.ReplaceNode(testInitializerMethodDeclaration, newConstructor);
+            root = root.ReplaceNode(testInitializerMethodDeclaration, newConstructor);
+
+            if (compatibilityConstructorPresent)
+            {
+                root = root.RemoveNode(
+                    root.DescendantNodes().OfType<ConstructorDeclarationSyntax>().First(),
+                    SyntaxRemoveOptions.KeepNoTrivia);
+            }
+
+            return root;
         }
 
         private static SyntaxNode ConvertTestCleanupIfNeeded(SyntaxNode root)
@@ -106,6 +117,11 @@ namespace AdhocAnalyzers.Xunit
                 from token in node.DescendantTokens()
                 where token.IsKind(SyntaxKind.IdentifierToken) && token.ValueText == "TestCleanup"
                 select token).SingleOrDefault();
+
+            var compatibilityDisposerPresent = root
+                .DescendantNodes()
+                .OfType<MethodDeclarationSyntax>()
+                .Any(methodDeclaration => methodDeclaration.Identifier.ValueText == "Dispose");
 
             if (testCleanupAttributeToken.IsKind(SyntaxKind.None))
             {
@@ -120,13 +136,33 @@ namespace AdhocAnalyzers.Xunit
                 .AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword))
                 .WithBody(testCleanupMethodDeclaration.Body);
 
-            return root.ReplaceNode(classDeclaration,
-                classDeclaration
-                    .ReplaceNode(testCleanupMethodDeclaration, disposeMethodDeclaration)
-                    .WithBaseList((classDeclaration.BaseList ?? SyntaxFactory.BaseList())
-                        .AddTypes(SyntaxFactory.SimpleBaseType(SyntaxFactory.ParseTypeName("System.IDisposable"))))
-                    // This is to remove the additional line ending after the class (when the base list was empty)
-                    .WithIdentifier(classDeclaration.Identifier.WithoutTrivia()));
+            if (!compatibilityDisposerPresent)
+            {
+                root = root.ReplaceNode(classDeclaration,
+                    classDeclaration
+                        .ReplaceNode(testCleanupMethodDeclaration, disposeMethodDeclaration)
+                        .WithBaseList((classDeclaration.BaseList ?? SyntaxFactory.BaseList())
+                            .AddTypes(SyntaxFactory.SimpleBaseType(SyntaxFactory.ParseTypeName("System.IDisposable"))))
+                        // This is to remove the additional line ending after the class (when the base list was empty)
+                        .WithIdentifier(classDeclaration.Identifier.WithoutTrivia()));
+            }
+            else
+            {
+                root = root.ReplaceNode(testCleanupMethodDeclaration, disposeMethodDeclaration);
+            }
+
+            if (compatibilityDisposerPresent)
+            {
+                var compatibilityDisposeMethodDeclaration = root
+                .DescendantNodes()
+                .OfType<MethodDeclarationSyntax>()
+                .Where(methodDeclaration => methodDeclaration.Identifier.ValueText == "Dispose")
+                .Last();
+
+                root = root.RemoveNode(compatibilityDisposeMethodDeclaration, SyntaxRemoveOptions.KeepNoTrivia);
+
+            }
+            return root;
         }
 
         private static SyntaxNode RemoveUnusedMsTestImportDirective(SyntaxNode root)

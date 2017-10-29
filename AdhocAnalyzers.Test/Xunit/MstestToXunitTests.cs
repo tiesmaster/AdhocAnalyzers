@@ -15,10 +15,6 @@ namespace AdhocAnalyzers.Test.Xunit
 {
     public class MstestToXunitTests : CodeRefactoringVerifier
     {
-        // TODO:
-        //  * Add action to convert remaining test to xUnit, and
-        //      cleanup MStest -> xUnit bridge (remove TI/TC)
-
         // CONVERT ALL
         //  * Add action to convert all tests to xUnit
         //    * convert TM -> Fact
@@ -387,6 +383,78 @@ public class Class1 : IDisposable
 
     [Fact]
     public void MyTestMethod1()
+    {
+    }
+
+    public void Dispose()
+    {
+        int j = 1;
+    }
+}";
+            VerifyRefactoring(oldSource, newSource, "Convert MSTest method to Fact");
+        }
+
+        [Fact]
+        public void ConvertSingleFact_LastRemainingTestMethodAndAlreadyWithConstructorAndDisposer_CleansUpEverything()
+        {
+            var oldSource =
+@"using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
+
+[TestClass]
+public class Class1 : IDisposable
+{
+    public Class1()
+    {
+        TestInitialize();
+    }
+
+    [TestInitialize]
+    public void TestInitialize()
+    {
+        int i = 0;
+    }
+
+    [Fact]
+    public void MyTestMethod1()
+    {
+    }
+
+    [TestMethod]
+    $$public void MyTestMethod2()
+    {
+    }
+
+    [TestCleanup]
+    public void TestCleanup()
+    {
+        int j = 1;
+    }
+
+    public void Dispose()
+    {
+        TestCleanup();
+    }
+}";
+
+            var newSource =
+@"using System;
+using Xunit;
+public class Class1 : IDisposable
+{
+    public Class1()
+    {
+        int i = 0;
+    }
+
+    [Fact]
+    public void MyTestMethod1()
+    {
+    }
+
+    [Fact]
+    public void MyTestMethod2()
     {
     }
 
