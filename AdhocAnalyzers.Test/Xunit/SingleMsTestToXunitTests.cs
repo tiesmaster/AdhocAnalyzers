@@ -15,12 +15,6 @@ namespace AdhocAnalyzers.Test.Xunit
 {
     public class SingleMsTestToXunitTests : CodeRefactoringVerifier
     {
-        // CONVERT ALL
-        //  * Add action to convert all tests to xUnit
-        //    * convert TM -> Fact
-        //    * convert TI/TC -> ctor/dispose
-        //    * remove mstest namespace import
-
         [Fact]
         public void EmptySource_ShouldNotProvideRefactoring()
         {

@@ -12,27 +12,27 @@ using Microsoft.CodeAnalysis.Simplification;
 
 namespace AdhocAnalyzers.Xunit
 {
-    [ExportCodeRefactoringProvider(LanguageNames.CSharp, Name = nameof(SingleMsTestToXunitRefactoringProvider))]
+    [ExportCodeRefactoringProvider(LanguageNames.CSharp, Name = nameof(AllMsTestsToXunitRefactoringProvider))]
     [Shared]
-    public class SingleMsTestToXunitRefactoringProvider : CodeRefactoringProvider
+    public class AllMsTestsToXunitRefactoringProvider : CodeRefactoringProvider
     {
         public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
         {
-            var root = await context.Document.GetSyntaxRootAsync().ConfigureAwait(false);
-            var currentNode = root.FindNode(context.Span);
+            //var root = await context.Document.GetSyntaxRootAsync().ConfigureAwait(false);
+            //var currentNode = root.FindNode(context.Span);
 
-            var methodDeclaration = currentNode.AncestorsAndSelf().OfType<MethodDeclarationSyntax>().FirstOrDefault();
+            //var methodDeclaration = currentNode.AncestorsAndSelf().OfType<MethodDeclarationSyntax>().FirstOrDefault();
 
-            if (methodDeclaration != null && IsMsTestMethod(methodDeclaration))
-            {
-                context.RegisterRefactoring(
-                    CodeAction.Create(
-                        "Convert MSTest method to Fact",
-                        _ => ConvertSingleTestToFactAsync(context.Document, root, methodDeclaration)));
-            }
+            //if (methodDeclaration != null && IsMsTestMethod(methodDeclaration))
+            //{
+            //    context.RegisterRefactoring(
+            //        CodeAction.Create(
+            //            "Convert MSTest methods to Facts",
+            //            _ => ConvertAllTestToFactAsync(context.Document, root, methodDeclarations)));
+            //}
         }
 
-        private static Task<Document> ConvertSingleTestToFactAsync(
+        private static Task<Document> ConvertAllTestToFactAsync(
             Document originalDocument,
             SyntaxNode root,
             MethodDeclarationSyntax msTestMethodDeclaration)
