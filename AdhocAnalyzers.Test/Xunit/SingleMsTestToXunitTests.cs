@@ -13,7 +13,7 @@ using Xunit;
 
 namespace AdhocAnalyzers.Test.Xunit
 {
-    public class MstestToXunitTests : CodeRefactoringVerifier
+    public class SingleMsTestToXunitTests : CodeRefactoringVerifier
     {
         // CONVERT ALL
         //  * Add action to convert all tests to xUnit
@@ -468,7 +468,7 @@ public class Class1 : IDisposable
 
         protected override CodeRefactoringProvider GetCodeRefactoringProvider()
         {
-            return new MstestToXunitTRefactoringProvider();
+            return new SingleMsTestToXunitRefactoringProvider();
         }
 
         protected override IEnumerable<MetadataReference> AdditionalMetadataReferences

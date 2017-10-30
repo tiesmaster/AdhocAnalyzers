@@ -15,7 +15,7 @@ namespace AdhocAnalyzers.Xunit
 {
     [ExportCodeRefactoringProvider(LanguageNames.CSharp, Name = nameof(StructureNamespaceUsingsRefactoringProvider))]
     [Shared]
-    public class MstestToXunitTRefactoringProvider : CodeRefactoringProvider
+    public class SingleMsTestToXunitRefactoringProvider : CodeRefactoringProvider
     {
         public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
         {
