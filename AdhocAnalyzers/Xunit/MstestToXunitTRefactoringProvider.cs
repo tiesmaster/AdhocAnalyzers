@@ -156,12 +156,11 @@ namespace AdhocAnalyzers.Xunit
                 var compatibilityDisposeMethodDeclaration = root
                 .DescendantNodes()
                 .OfType<MethodDeclarationSyntax>()
-                .Where(methodDeclaration => methodDeclaration.Identifier.ValueText == "Dispose")
-                .Last();
+                .Last(methodDeclaration => methodDeclaration.Identifier.ValueText == "Dispose");
 
                 root = root.RemoveNode(compatibilityDisposeMethodDeclaration, SyntaxRemoveOptions.KeepNoTrivia);
-
             }
+
             return root;
         }
 
@@ -194,15 +193,15 @@ namespace AdhocAnalyzers.Xunit
             return root.RemoveNode(attributeListOfTestClassAttribute, SyntaxRemoveOptions.KeepNoTrivia);
         }
 
-        private static SyntaxNode AddCompatibilityConstructorIfNeeded(SyntaxNode newRoot)
+        private static SyntaxNode AddCompatibilityConstructorIfNeeded(SyntaxNode root)
         {
             var testInitializeAttributeToken = (
-                from node in newRoot.DescendantNodes().OfType<AttributeSyntax>()
+                from node in root.DescendantNodes().OfType<AttributeSyntax>()
                 from token in node.DescendantTokens()
                 where token.IsKind(SyntaxKind.IdentifierToken) && token.ValueText == "TestInitialize"
                 select token).SingleOrDefault();
 
-            var alreadyAdded = newRoot.DescendantNodes().OfType<ConstructorDeclarationSyntax>().Any();
+            var alreadyAdded = root.DescendantNodes().OfType<ConstructorDeclarationSyntax>().Any();
 
             if (!testInitializeAttributeToken.IsKind(SyntaxKind.None) && !alreadyAdded)
             {
@@ -215,22 +214,22 @@ namespace AdhocAnalyzers.Xunit
                     .WithBody(SyntaxFactory.Block(
                         SyntaxFactory.ParseStatement($"{testInitializerMethodDeclaration.Identifier.ValueText}();")));
 
-                newRoot = newRoot.ReplaceNode(classDeclaration,
+                root = root.ReplaceNode(classDeclaration,
                     classDeclaration.WithMembers(classDeclaration.Members.Insert(0, newConstructor)));
             }
 
-            return newRoot;
+            return root;
         }
 
-        private static SyntaxNode AddCompatibilityDisposerIfNeeded(SyntaxNode newRoot)
+        private static SyntaxNode AddCompatibilityDisposerIfNeeded(SyntaxNode root)
         {
             var testCleanupAttributeToken = (
-                from node in newRoot.DescendantNodes().OfType<AttributeSyntax>()
+                from node in root.DescendantNodes().OfType<AttributeSyntax>()
                 from token in node.DescendantTokens()
                 where token.IsKind(SyntaxKind.IdentifierToken) && token.ValueText == "TestCleanup"
                 select token).SingleOrDefault();
 
-            var alreadyAdded = newRoot
+            var alreadyAdded = root
                 .DescendantNodes()
                 .OfType<MethodDeclarationSyntax>()
                 .Any(methodDeclaration => methodDeclaration.Identifier.ValueText == "Dispose");
@@ -246,7 +245,7 @@ namespace AdhocAnalyzers.Xunit
                     .WithBody(SyntaxFactory.Block(
                         SyntaxFactory.ParseStatement($"{testCleanupMethodDeclaration.Identifier.ValueText}();")));
 
-                newRoot = newRoot.ReplaceNode(classDeclaration,
+                root = root.ReplaceNode(classDeclaration,
                     classDeclaration
                         .WithMembers(classDeclaration.Members.Add(disposeMethodDeclaration))
                         .WithBaseList((classDeclaration.BaseList ?? SyntaxFactory.BaseList())
@@ -255,7 +254,7 @@ namespace AdhocAnalyzers.Xunit
                         .WithIdentifier(classDeclaration.Identifier.WithoutTrivia()));
             }
 
-            return newRoot;
+            return root;
         }
 
         private static bool IsMsTestMethod(MethodDeclarationSyntax methodDeclaration)
