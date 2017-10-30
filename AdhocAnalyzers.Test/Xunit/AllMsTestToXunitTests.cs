@@ -37,7 +37,7 @@ namespace AdhocAnalyzers.Test.Xunit
 [TestClass]
 public class Class1
 {
-    [Fact]
+    [TestMethod]
     $$public void MyTestMethod1()
     {
     }
@@ -45,6 +45,46 @@ public class Class1
 
             VerifyNoRefactoring(source);
         }
+
+        [Fact]
+        public void ConvertAllFacts_WithMultipleFacts_ConvertsToFactsRemovesTestClassAttribute()
+        {
+            var oldSource =
+@"using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+[TestClass]
+public class Class1
+{
+    [TestMethod]
+    $$public void MyTestMethod1()
+    {
+    }
+
+    [TestMethod]
+    public void MyTestMethod2()
+    {
+    }
+}";
+
+            var newSource =
+@"using Xunit;
+
+public class Class1
+{
+    [Fact]
+    public void MyTestMethod1()
+    {
+    }
+
+    [Fact]
+    public void MyTestMethod2()
+    {
+    }
+}";
+            VerifyRefactoring(oldSource, newSource, "Convert MSTest methods to Facts");
+        }
+
+        // TODO: handle class without [TestClass] attribute
 
         protected override CodeRefactoringProvider GetCodeRefactoringProvider()
         {

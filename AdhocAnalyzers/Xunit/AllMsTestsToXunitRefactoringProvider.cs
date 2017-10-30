@@ -1,4 +1,6 @@
-﻿using System.Composition;
+﻿using System;
+using System.Collections.Generic;
+using System.Composition;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -18,35 +20,43 @@ namespace AdhocAnalyzers.Xunit
     {
         public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
         {
-            //var root = await context.Document.GetSyntaxRootAsync().ConfigureAwait(false);
-            //var currentNode = root.FindNode(context.Span);
+            var root = await context.Document.GetSyntaxRootAsync().ConfigureAwait(false);
+            var currentNode = root.FindNode(context.Span);
 
-            //var methodDeclaration = currentNode.AncestorsAndSelf().OfType<MethodDeclarationSyntax>().FirstOrDefault();
+            var methodDeclaration = currentNode.AncestorsAndSelf().OfType<MethodDeclarationSyntax>().FirstOrDefault(IsMsTestMethod);
 
-            //if (methodDeclaration != null && IsMsTestMethod(methodDeclaration))
-            //{
-            //    context.RegisterRefactoring(
-            //        CodeAction.Create(
-            //            "Convert MSTest methods to Facts",
-            //            _ => ConvertAllTestToFactAsync(context.Document, root, methodDeclarations)));
-            //}
+            if (methodDeclaration != null)
+            {
+                var classDeclaration = currentNode.AncestorsAndSelf().OfType<ClassDeclarationSyntax>().First();
+                var methodDeclarations = classDeclaration.DescendantNodes().OfType<MethodDeclarationSyntax>().Where(IsMsTestMethod);
+
+                if (methodDeclarations.Count() > 1)
+                {
+                    context.RegisterRefactoring(
+                        CodeAction.Create(
+                            "Convert MSTest methods to Facts",
+                            _ => ConvertAllTestToFactsAsync(context.Document, root, methodDeclarations)));
+                }
+            }
+
         }
 
-        private static Task<Document> ConvertAllTestToFactAsync(
+        private static Task<Document> ConvertAllTestToFactsAsync(
             Document originalDocument,
             SyntaxNode root,
-            MethodDeclarationSyntax msTestMethodDeclaration)
+            IEnumerable<MethodDeclarationSyntax> msTestMethodDeclarations)
         {
-            var newRoot = ConvertMsTestMethodToFact(root, msTestMethodDeclaration);
-            newRoot = AddCompatibilityConstructorIfNeeded(newRoot);
-            newRoot = AddCompatibilityDisposerIfNeeded(newRoot);
-            newRoot = RemoveTestClassAttributeIfNeeded(newRoot);
+            var newRoot = root.ReplaceNodes(msTestMethodDeclarations, ConvertMsTestMethodToFact);
+            newRoot = RemoveTestClassAttribute(newRoot);
+            newRoot = RemoveUnusedMsTestImportDirective(newRoot);
 
             return ImportAdder.AddImportsAsync(originalDocument.WithSyntaxRoot(newRoot));
         }
 
-        private static SyntaxNode ConvertMsTestMethodToFact(SyntaxNode root, MethodDeclarationSyntax msTestMethodDeclaration)
+        private static SyntaxNode ConvertMsTestMethodToFact(MethodDeclarationSyntax originalNode, MethodDeclarationSyntax newNode)
         {
+            var msTestMethodDeclaration = newNode;
+
             var msTestMethodAttributeIdentifier = msTestMethodDeclaration
                 .DescendantNodes().OfType<IdentifierNameSyntax>()
                 .Single(identifier => identifier.Identifier.ValueText == "TestMethod");
@@ -56,7 +66,7 @@ namespace AdhocAnalyzers.Xunit
                 .WithTriviaFrom(msTestMethodAttributeIdentifier)
                 .WithAdditionalAnnotations(Simplifier.Annotation);
 
-            return root.ReplaceNode(msTestMethodAttributeIdentifier, factAttributeIdentifier);
+            return msTestMethodDeclaration.ReplaceNode(msTestMethodAttributeIdentifier, factAttributeIdentifier);
         }
 
         private static SyntaxNode RemoveTestClassAttributeIfNeeded(SyntaxNode root)

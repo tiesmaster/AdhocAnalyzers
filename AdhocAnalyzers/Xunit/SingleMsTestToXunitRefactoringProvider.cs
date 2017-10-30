@@ -21,9 +21,9 @@ namespace AdhocAnalyzers.Xunit
             var root = await context.Document.GetSyntaxRootAsync().ConfigureAwait(false);
             var currentNode = root.FindNode(context.Span);
 
-            var methodDeclaration = currentNode.AncestorsAndSelf().OfType<MethodDeclarationSyntax>().FirstOrDefault();
+            var methodDeclaration = currentNode.AncestorsAndSelf().OfType<MethodDeclarationSyntax>().FirstOrDefault(IsMsTestMethod);
 
-            if (methodDeclaration != null && IsMsTestMethod(methodDeclaration))
+            if (methodDeclaration != null)
             {
                 context.RegisterRefactoring(
                     CodeAction.Create(
