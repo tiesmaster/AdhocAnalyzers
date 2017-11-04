@@ -69,21 +69,6 @@ namespace AdhocAnalyzers.Xunit
             return msTestMethodDeclaration.ReplaceNode(msTestMethodAttributeIdentifier, factAttributeIdentifier);
         }
 
-        private static SyntaxNode RemoveUnusedMsTestImportDirective(SyntaxNode root)
-        {
-            var msTestImportDirective = root
-                .DescendantNodes()
-                .OfType<UsingDirectiveSyntax>()
-                .SingleOrDefault(directive => directive.Name.ToString() == "Microsoft.VisualStudio.TestTools.UnitTesting");
-
-            if (msTestImportDirective != null)
-            {
-                root = root.RemoveNode(msTestImportDirective, SyntaxRemoveOptions.KeepNoTrivia);
-            }
-
-            return root;
-        }
-
         private static SyntaxNode RemoveTestClassAttribute(SyntaxNode root)
         {
             var testClassAttributeToken = root
@@ -99,6 +84,16 @@ namespace AdhocAnalyzers.Xunit
             return root.RemoveNode(attributeListOfTestClassAttribute, SyntaxRemoveOptions.KeepNoTrivia);
         }
 
+        private static SyntaxNode RemoveUnusedMsTestImportDirective(SyntaxNode root)
+        {
+            var msTestImportDirective = root
+                .DescendantNodes()
+                .OfType<UsingDirectiveSyntax>()
+                .Single(IsMsTestDirective);
+
+            return root.RemoveNode(msTestImportDirective, SyntaxRemoveOptions.KeepNoTrivia);
+        }
+
         private static bool IsMsTestMethod(MethodDeclarationSyntax methodDeclaration)
         {
             return methodDeclaration
@@ -106,5 +101,8 @@ namespace AdhocAnalyzers.Xunit
                 .SelectMany(attr => attr.DescendantTokens())
                 .Any(token => token.IsKind(SyntaxKind.IdentifierToken) && token.ValueText == "TestMethod");
         }
+
+        private static bool IsMsTestDirective(UsingDirectiveSyntax directive)
+            => directive.Name.ToString() == "Microsoft.VisualStudio.TestTools.UnitTesting";
     }
 }
