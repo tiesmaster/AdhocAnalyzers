@@ -19,6 +19,9 @@ namespace AdhocAnalyzers.Test.Xunit
         //  * Add action to convert all tests to xUnit
         //    * convert TI/TC -> ctor/dispose
 
+        // TODO: handle class without [TestClass] attribute
+        // TODO: handle class with compatibility ctor/disposer
+
         [Fact]
         public void EmptySource_DoesNotProvideRefactoring()
         {
@@ -81,8 +84,6 @@ public class Class1
 }";
             VerifyRefactoring(oldSource, newSource, "Convert MSTest methods to Facts");
         }
-
-        // TODO: handle class without [TestClass] attribute
 
         protected override CodeRefactoringProvider GetCodeRefactoringProvider()
         {
