@@ -59,7 +59,7 @@ public class Class1
     }
 
     [TestMethod]
-    public void MyTestMethod2()
+    public void TestMethod()
     {
     }
 }";
@@ -75,7 +75,7 @@ public class Class1
     }
 
     [Fact]
-    public void MyTestMethod2()
+    public void TestMethod()
     {
     }
 }";
