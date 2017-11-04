@@ -98,11 +98,11 @@ namespace AdhocAnalyzers.Xunit
 
         private static IdentifierNameSyntax GetMsTestMethodAttributeIdentifier(MethodDeclarationSyntax methodDeclaration)
         {
-            return methodDeclaration
-                .AttributeLists
-                .SelectMany(attr => attr.DescendantNodes())
-                .OfType<IdentifierNameSyntax>()
-                .SingleOrDefault(node => node.Identifier.ValueText == "TestMethod");
+            var query = from attribute in methodDeclaration.AttributeLists
+                        from node in attribute.DescendantNodes().OfType<IdentifierNameSyntax>()
+                        where node.Identifier.ValueText == "TestMethod"
+                        select node;
+            return query.SingleOrDefault();
         }
     }
 }

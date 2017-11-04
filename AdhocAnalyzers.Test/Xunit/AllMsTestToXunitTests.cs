@@ -21,6 +21,7 @@ namespace AdhocAnalyzers.Test.Xunit
 
         // TODO: handle class without [TestClass] attribute
         // TODO: handle class with compatibility ctor/disposer
+        // TODO: handle methods with [TestMethod] multiple times? (to make it more robust)
 
         [Fact]
         public void EmptySource_DoesNotProvideRefactoring()
