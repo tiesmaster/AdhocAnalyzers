@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Composition;
 using System.Linq;
 using System.Threading.Tasks;
@@ -36,23 +37,36 @@ namespace AdhocAnalyzers.Xunit
             SyntaxNode root,
             IEnumerable<MethodDeclarationSyntax> msTestMethodDeclarations)
         {
+            // Convert [TestMethod] -> [Fact]
             var newRoot = root.ReplaceNodes(
                 msTestMethodDeclarations.Select(GetMsTestMethodAttributeIdentifier),
-                ConvertMsTestMethodAttributeToFact);
+                ConvertToFact);
 
-            var testClassAttributes = GetTestClassAttributeIdentifier(
-                newRoot.DescendantNodesAndSelf().OfType<ClassDeclarationSyntax>().Single());
+            // Remove [TestClass]
+            var classDeclaration = newRoot.DescendantNodesAndSelf().OfType<ClassDeclarationSyntax>().Single();
 
+            var testClassAttributes = GetTestClassAttributeIdentifiers(classDeclaration);
             newRoot = newRoot.RemoveNodes(
                 testClassAttributes.Select(testClassIdentifier => testClassIdentifier.Parent.Parent),
                 SyntaxRemoveOptions.KeepNoTrivia);
 
+            // Remove 'using MSTEST;'
             newRoot = newRoot.RemoveNode(GetMsTestDirective(newRoot), SyntaxRemoveOptions.KeepNoTrivia);
+
+            // Convert [TestInitialize] -> ctor
+            classDeclaration = newRoot.DescendantNodesAndSelf().OfType<ClassDeclarationSyntax>().Single();
+            var testInitializeMethod = GetTestInitializeMethod(classDeclaration);
+            if (testInitializeMethod != null)
+            {
+                newRoot = newRoot.ReplaceNode(
+                    testInitializeMethod,
+                    ConvertToConstructor(testInitializeMethod, classDeclaration));
+            }
 
             return ImportAdder.AddImportsAsync(originalDocument.WithSyntaxRoot(newRoot));
         }
 
-        private static SyntaxNode ConvertMsTestMethodAttributeToFact(
+        private static SyntaxNode ConvertToFact(
             IdentifierNameSyntax originalNode,
             IdentifierNameSyntax newNode)
         {
@@ -60,6 +74,16 @@ namespace AdhocAnalyzers.Xunit
                 .ParseName("Xunit.FactAttribute")
                 .WithTriviaFrom(newNode)
                 .WithAdditionalAnnotations(Simplifier.Annotation);
+        }
+
+        private static SyntaxNode ConvertToConstructor(
+            MethodDeclarationSyntax testInitializeMethod,
+            ClassDeclarationSyntax classDeclaration)
+        {
+            return SyntaxFactory
+                .ConstructorDeclaration(classDeclaration.Identifier.WithoutTrivia())
+                .AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword))
+                .WithBody(testInitializeMethod.Body);
         }
 
         private static bool IsMsTestMethod(MethodDeclarationSyntax methodDeclaration)
@@ -77,13 +101,24 @@ namespace AdhocAnalyzers.Xunit
             return query.SingleOrDefault();
         }
 
-        private static IEnumerable<IdentifierNameSyntax> GetTestClassAttributeIdentifier(
+        private static IEnumerable<IdentifierNameSyntax> GetTestClassAttributeIdentifiers(
             ClassDeclarationSyntax classDeclaration)
         {
             return from attribute in classDeclaration.AttributeLists
                    from node in attribute.DescendantNodes().OfType<IdentifierNameSyntax>()
                    where node.Identifier.ValueText == "TestClass"
                    select node;
+        }
+
+        private static MethodDeclarationSyntax GetTestInitializeMethod(
+            ClassDeclarationSyntax classDeclaration)
+        {
+            var query = from method in classDeclaration.Members.OfType<MethodDeclarationSyntax>()
+                        from attribute in method.AttributeLists
+                        from node in attribute.DescendantNodes().OfType<IdentifierNameSyntax>()
+                        where node.Identifier.ValueText == "TestInitialize"
+                        select method;
+            return query.SingleOrDefault();
         }
 
         private static UsingDirectiveSyntax GetMsTestDirective(SyntaxNode newRoot)

@@ -109,6 +109,55 @@ public class Class1
             VerifyRefactoring(oldSource, newSource, "Convert MSTest methods to Facts");
         }
 
+        [Fact]
+        public void ConvertAllFacts_WithTestInitialize_ConvertsToConstructor()
+        {
+            var oldSource =
+@"using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+[TestClass]
+public class Class1
+{
+    [TestInitialize]
+    public void TestInitialize()
+    {
+        int i = 0;
+    }
+
+    [TestMethod]
+    $$public void MyTestMethod1()
+    {
+    }
+
+    [TestMethod]
+    public void TestMethod()
+    {
+    }
+}";
+
+            var newSource =
+@"using Xunit;
+
+public class Class1
+{
+    public Class1()
+    {
+        int i = 0;
+    }
+
+    [Fact]
+    public void MyTestMethod1()
+    {
+    }
+
+    [Fact]
+    public void TestMethod()
+    {
+    }
+}";
+            VerifyRefactoring(oldSource, newSource, "Convert MSTest methods to Facts");
+        }
+
         protected override CodeRefactoringProvider GetCodeRefactoringProvider()
         {
             return new AllMsTestsToXunitRefactoringProvider();
