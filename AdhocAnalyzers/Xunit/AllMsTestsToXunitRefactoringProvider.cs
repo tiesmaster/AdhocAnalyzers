@@ -63,6 +63,16 @@ namespace AdhocAnalyzers.Xunit
                     ConvertToConstructor(testInitializeMethod, classDeclaration));
             }
 
+            // Convert [TestCleanup] -> IDisposable
+            classDeclaration = newRoot.DescendantNodesAndSelf().OfType<ClassDeclarationSyntax>().Single();
+            var testCleanupMethod = GetTestCleanupMethod(classDeclaration);
+            if (testCleanupMethod != null)
+            {
+                newRoot = newRoot.ReplaceNode(
+                    classDeclaration,
+                    ConvertToDisposable(classDeclaration, testCleanupMethod));
+            }
+
             return ImportAdder.AddImportsAsync(originalDocument.WithSyntaxRoot(newRoot));
         }
 
@@ -77,13 +87,29 @@ namespace AdhocAnalyzers.Xunit
         }
 
         private static SyntaxNode ConvertToConstructor(
-            MethodDeclarationSyntax testInitializeMethod,
+            MethodDeclarationSyntax testInitializeMethodDeclaration,
             ClassDeclarationSyntax classDeclaration)
         {
             return SyntaxFactory
                 .ConstructorDeclaration(classDeclaration.Identifier.WithoutTrivia())
                 .AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword))
-                .WithBody(testInitializeMethod.Body);
+                .WithBody(testInitializeMethodDeclaration.Body);
+        }
+
+        private static SyntaxNode ConvertToDisposable(
+            ClassDeclarationSyntax classDeclaration,
+            MethodDeclarationSyntax testCleanupMethodDeclaration)
+        {
+            var disposeMethodDeclaration = SyntaxFactory
+                .MethodDeclaration(SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.VoidKeyword)), "Dispose")
+                .AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword))
+                .WithBody(testCleanupMethodDeclaration.Body);
+
+            return classDeclaration
+                .ReplaceNode(testCleanupMethodDeclaration, disposeMethodDeclaration)
+                .AddBaseListTypes(SyntaxFactory.SimpleBaseType(SyntaxFactory.ParseTypeName("System.IDisposable")))
+                // This is to remove the additional line ending after the class (when the base list was empty)
+                .WithIdentifier(classDeclaration.Identifier.WithoutTrivia());
         }
 
         private static bool IsMsTestMethod(MethodDeclarationSyntax methodDeclaration)
@@ -117,6 +143,17 @@ namespace AdhocAnalyzers.Xunit
                         from attribute in method.AttributeLists
                         from node in attribute.DescendantNodes().OfType<IdentifierNameSyntax>()
                         where node.Identifier.ValueText == "TestInitialize"
+                        select method;
+            return query.SingleOrDefault();
+        }
+
+        private static MethodDeclarationSyntax GetTestCleanupMethod(
+            ClassDeclarationSyntax classDeclaration)
+        {
+            var query = from method in classDeclaration.Members.OfType<MethodDeclarationSyntax>()
+                        from attribute in method.AttributeLists
+                        from node in attribute.DescendantNodes().OfType<IdentifierNameSyntax>()
+                        where node.Identifier.ValueText == "TestCleanup"
                         select method;
             return query.SingleOrDefault();
         }

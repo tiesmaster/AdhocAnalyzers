@@ -158,6 +158,56 @@ public class Class1
             VerifyRefactoring(oldSource, newSource, "Convert MSTest methods to Facts");
         }
 
+        [Fact]
+        public void ConvertAllFacts_WithTestCleanup_ConvertsToDisposable()
+        {
+            var oldSource =
+@"using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+[TestClass]
+public class Class1
+{
+    [TestMethod]
+    $$public void MyTestMethod1()
+    {
+    }
+
+    [TestMethod]
+    public void TestMethod()
+    {
+    }
+
+    [TestCleanup]
+    public void TestCleanup()
+    {
+        int i = 0;
+    }
+}";
+
+            var newSource =
+@"using System;
+using Xunit;
+
+public class Class1 : IDisposable
+{
+    [Fact]
+    public void MyTestMethod1()
+    {
+    }
+
+    [Fact]
+    public void TestMethod()
+    {
+    }
+
+    public void Dispose()
+    {
+        int i = 0;
+    }
+}";
+            VerifyRefactoring(oldSource, newSource, "Convert MSTest methods to Facts");
+        }
+
         protected override CodeRefactoringProvider GetCodeRefactoringProvider()
         {
             return new AllMsTestsToXunitRefactoringProvider();
