@@ -49,7 +49,7 @@ public class Class1
         }
 
         [Fact]
-        public void ConvertAllFacts_WithMultipleFacts_ConvertsToFactsRemovesTestClassAttribute()
+        public void ConvertAllFacts_WithMultipleTestMethods_ConvertsToFactsRemovesTestClassAttribute()
         {
             var oldSource =
 @"using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -84,6 +84,29 @@ public class Class1
     }
 }";
             VerifyRefactoring(oldSource, newSource, "Convert MSTest methods to Facts");
+        }
+
+        [Fact]
+        public void ConvertAllFacts_MultipleTestMethodsButPositionElsewhere_DoesNotProvideRefactoring()
+        {
+            var source =
+@"using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+[TestClass]
+public class Class1
+$${
+    [TestMethod]
+    public void MyTestMethod1()
+    {
+    }
+
+    [TestMethod]
+    public void TestMethod()
+    {
+    }
+}";
+
+            VerifyNoRefactoring(source);
         }
 
         protected override CodeRefactoringProvider GetCodeRefactoringProvider()

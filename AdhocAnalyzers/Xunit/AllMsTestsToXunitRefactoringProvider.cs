@@ -20,28 +20,18 @@ namespace AdhocAnalyzers.Xunit
         public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
         {
             var root = await context.Document.GetSyntaxRootAsync().ConfigureAwait(false);
-            var currentNode = root.FindNode(context.Span);
-
-            var methodDeclaration = currentNode.AncestorsAndSelf().OfType<MethodDeclarationSyntax>().FirstOrDefault(IsMsTestMethod);
-
-            // First of all, are we in a mstest method?
-            if (methodDeclaration != null)
+            var methodDeclarations = root.DescendantNodesAndSelf().OfType<MethodDeclarationSyntax>().Where(IsMsTestMethod);
+            if (methodDeclarations.Skip(1).Any()
+                && methodDeclarations.Any(method => method.Span.IntersectsWith(context.Span)))
             {
-                var classDeclaration = currentNode.AncestorsAndSelf().OfType<ClassDeclarationSyntax>().First();
-                var methodDeclarations = classDeclaration.DescendantNodes().OfType<MethodDeclarationSyntax>().Where(IsMsTestMethod);
-
-                // Next, do we have at least 2 mstest methods to convert?
-                if (methodDeclarations.Skip(1).Any())
-                {
-                    context.RegisterRefactoring(
-                        CodeAction.Create(
-                            "Convert MSTest methods to Facts",
-                            _ => ConvertAllTestToFactsAsync(context.Document, root, methodDeclarations)));
-                }
+                context.RegisterRefactoring(
+                    CodeAction.Create(
+                        "Convert MSTest methods to Facts",
+                        _ => ConvertAllTestsToFactsAsync(context.Document, root, methodDeclarations)));
             }
         }
 
-        private static Task<Document> ConvertAllTestToFactsAsync(
+        private static Task<Document> ConvertAllTestsToFactsAsync(
             Document originalDocument,
             SyntaxNode root,
             IEnumerable<MethodDeclarationSyntax> msTestMethodDeclarations)
