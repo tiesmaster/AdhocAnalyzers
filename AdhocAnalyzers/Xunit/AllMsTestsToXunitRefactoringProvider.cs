@@ -46,27 +46,23 @@ namespace AdhocAnalyzers.Xunit
             SyntaxNode root,
             IEnumerable<MethodDeclarationSyntax> msTestMethodDeclarations)
         {
-            var newRoot = root.ReplaceNodes(msTestMethodDeclarations, ConvertMsTestMethodToFact);
+            var newRoot = root.ReplaceNodes(
+                msTestMethodDeclarations.Select(GetMsTestMethodAttributeIdentifier),
+                ConvertMsTestMethodAttributeToFact);
             newRoot = RemoveTestClassAttribute(newRoot);
             newRoot = RemoveUnusedMsTestImportDirective(newRoot);
 
             return ImportAdder.AddImportsAsync(originalDocument.WithSyntaxRoot(newRoot));
         }
 
-        private static SyntaxNode ConvertMsTestMethodToFact(MethodDeclarationSyntax originalNode, MethodDeclarationSyntax newNode)
+        private static SyntaxNode ConvertMsTestMethodAttributeToFact(
+            IdentifierNameSyntax originalNode,
+            IdentifierNameSyntax newNode)
         {
-            var msTestMethodDeclaration = newNode;
-
-            var msTestMethodAttributeIdentifier = msTestMethodDeclaration
-                .DescendantNodes().OfType<IdentifierNameSyntax>()
-                .Single(identifier => identifier.Identifier.ValueText == "TestMethod");
-
-            var factAttributeIdentifier = SyntaxFactory
+            return SyntaxFactory
                 .ParseName("Xunit.FactAttribute")
-                .WithTriviaFrom(msTestMethodAttributeIdentifier)
+                .WithTriviaFrom(newNode)
                 .WithAdditionalAnnotations(Simplifier.Annotation);
-
-            return msTestMethodDeclaration.ReplaceNode(msTestMethodAttributeIdentifier, factAttributeIdentifier);
         }
 
         private static SyntaxNode RemoveTestClassAttribute(SyntaxNode root)
@@ -95,14 +91,18 @@ namespace AdhocAnalyzers.Xunit
         }
 
         private static bool IsMsTestMethod(MethodDeclarationSyntax methodDeclaration)
-        {
-            return methodDeclaration
-                .AttributeLists
-                .SelectMany(attr => attr.DescendantTokens())
-                .Any(token => token.IsKind(SyntaxKind.IdentifierToken) && token.ValueText == "TestMethod");
-        }
+            => GetMsTestMethodAttributeIdentifier(methodDeclaration) != null;
 
         private static bool IsMsTestDirective(UsingDirectiveSyntax directive)
             => directive.Name.ToString() == "Microsoft.VisualStudio.TestTools.UnitTesting";
+
+        private static IdentifierNameSyntax GetMsTestMethodAttributeIdentifier(MethodDeclarationSyntax methodDeclaration)
+        {
+            return methodDeclaration
+                .AttributeLists
+                .SelectMany(attr => attr.DescendantNodes())
+                .OfType<IdentifierNameSyntax>()
+                .SingleOrDefault(node => node.Identifier.ValueText == "TestMethod");
+        }
     }
 }
