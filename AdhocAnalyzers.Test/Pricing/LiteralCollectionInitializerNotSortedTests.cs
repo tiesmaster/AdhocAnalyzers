@@ -64,8 +64,8 @@ public class Class1
             VerifyDiagnostic(test);
         }
 
-        [Fact(Skip = "TODO")]
-        public void ClassWitUnsortedCollectionInitializerNoDiagnostics()
+        [Fact]
+        public void ClassWitUnsortedCollectionInitializer_ShouldProvideDiagnostic /* AndCodeFix */()
         {
             var test =
 @"using System.Collections.Generic;
@@ -82,11 +82,11 @@ public class Class1
             var expected = new DiagnosticResult
             {
                 Id = "PRICING0001",
-                Message = "Collection initializer for field '_items' has unsorted members.",
+                Message = "Collection initializer for field '_users' has unsorted members.",
                 Severity = DiagnosticSeverity.Warning,
                 Locations =
                     new[] {
-                            new DiagnosticResultLocation("Test0.cs", 3, 47)
+                            new DiagnosticResultLocation("Test0.cs", 5, 92)
                         }
             };
 

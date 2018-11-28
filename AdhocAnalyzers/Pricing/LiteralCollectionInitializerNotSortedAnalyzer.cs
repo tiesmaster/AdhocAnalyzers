@@ -14,7 +14,7 @@ namespace AdhocAnalyzers.Pricing
         private readonly DiagnosticDescriptor _rule = new DiagnosticDescriptor(
             "PRICING0001",
             nameof(LiteralCollectionInitializerNotSortedAnalyzer),
-            "Given collection initializer has unsorted members.",
+            "Collection initializer for field '{0}' has unsorted members.",
             "PRICING",
             DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
@@ -34,13 +34,31 @@ namespace AdhocAnalyzers.Pricing
             var objectCreation = (ObjectCreationExpressionSyntax)collectionInitializer.Parent;
             var genericName = (GenericNameSyntax)objectCreation.Type;
             var firstTypeArgument = genericName.TypeArgumentList.Arguments.First();
-            if (!firstTypeArgument.IsKind(SyntaxKind.PredefinedType) ||
-                ((PredefinedTypeSyntax)firstTypeArgument).Keyword != SyntaxFactory.Token(SyntaxKind.StringKeyword))
+
+            if (!firstTypeArgument.IsKind(SyntaxKind.PredefinedType)
+                || !((PredefinedTypeSyntax)firstTypeArgument).Keyword.IsKind(SyntaxKind.StringKeyword))
             {
                 return;
             }
 
-            throw new NotImplementedException();
+            var strings = collectionInitializer
+                .Expressions
+                .Cast<InitializerExpressionSyntax>()
+                .Select(x => x.Expressions.First())
+                .Cast<LiteralExpressionSyntax>()
+                .Select(x => x.Token.ValueText)
+                .ToArray();
+
+            if (true /* IsSorted(strings) */)
+            {
+                context.ReportDiagnostic(Diagnostic.Create(
+                    _rule,
+                    collectionInitializer.GetLocation(),
+                    GetFieldIdentifier(objectCreation).ValueText));
+            }
         }
+
+        private SyntaxToken GetFieldIdentifier(ObjectCreationExpressionSyntax objectCreation)
+            => objectCreation.FirstAncestorOrSelf<VariableDeclaratorSyntax>().Identifier;
     }
 }
