@@ -34,28 +34,49 @@ namespace AdhocAnalyzers.Test.Pricing
         public void ClassWitSortedCollectionInitializerNoDiagnostics()
         {
             var test =
-@"public class Class1
+@"using System.Collections.Generic;
+
+public class Class1
 {
-    private static readonly string[] _items = new string[] {
-        ""foo"",
-        ""bar"",
-        ""baz""
-    };
+    private static readonly Dictionary<string, bool> _users = new Dictionary<string, bool> {
+            {""foo"", true},
+            {""bar"", false},
+            {""baz"", false},
+        };
 }";
             VerifyDiagnostic(test);
         }
 
         [Fact]
+        public void CollectionInitializerWithoutStringKeysNoDiagnostics()
+        {
+            var test =
+@"using System.Collections.Generic;
+
+public class Class1
+{
+    private static readonly Dictionary<int, bool> _users = new Dictionary<int, bool> {
+            {1, true},
+            {2, false},
+            {3, false},
+        };
+}";
+            VerifyDiagnostic(test);
+        }
+
+        [Fact(Skip = "TODO")]
         public void ClassWitUnsortedCollectionInitializerNoDiagnostics()
         {
             var test =
-@"public class Class1
+@"using System.Collections.Generic;
+
+public class Class1
 {
-    private static readonly string[] _items = new string[] {
-        ""bar"",
-        ""foo"",
-        ""baz""
-    };
+    private static readonly Dictionary<string, bool> _users = new Dictionary<string, bool> {
+            {""bar"", false},
+            {""foo"", true},
+            {""baz"", false},
+        };
 }";
 
             var expected = new DiagnosticResult

@@ -1,8 +1,10 @@
-﻿public class Class1
+﻿using System.Collections.Generic;
+
+public class Class1
 {
-    private static readonly string[] _items = new string[] {
-        "foo",
-        "bar",
-        "baz"
-    };
+    private static readonly Dictionary<string, bool> _users = new Dictionary<string, bool> {
+            {"foo", true},
+            {"bar", false},
+            {"baz", false},
+        };
 }
