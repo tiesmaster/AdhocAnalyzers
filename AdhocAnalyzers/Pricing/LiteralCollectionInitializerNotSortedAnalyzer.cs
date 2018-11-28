@@ -1,6 +1,9 @@
-﻿using System.Collections.Immutable;
+﻿using System;
+using System.Collections.Immutable;
 
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace AdhocAnalyzers.Pricing
@@ -21,6 +24,14 @@ namespace AdhocAnalyzers.Pricing
 
         public override void Initialize(AnalysisContext context)
         {
+            context.RegisterSyntaxNodeAction(AnalyzeCollectionInitializer, SyntaxKind.ArrayCreationExpression);
+        }
+
+        private void AnalyzeCollectionInitializer(SyntaxNodeAnalysisContext context)
+        {
+            var collectionInitializer = (ArrayCreationExpressionSyntax)context.Node;
+
+            throw new NotImplementedException();
         }
     }
 }
