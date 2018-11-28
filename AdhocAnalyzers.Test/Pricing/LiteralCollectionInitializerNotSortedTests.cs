@@ -39,9 +39,9 @@ namespace AdhocAnalyzers.Test.Pricing
 public class Class1
 {
     private static readonly Dictionary<string, bool> _users = new Dictionary<string, bool> {
-            {""foo"", true},
-            {""bar"", false},
-            {""baz"", false},
+            {""Alice"", true},
+            {""Bob"", false},
+            {""Charlie"", false},
         };
 }";
             VerifyDiagnostic(test);
@@ -73,9 +73,9 @@ public class Class1
 public class Class1
 {
     private static readonly Dictionary<string, bool> _users = new Dictionary<string, bool> {
-            {""bar"", false},
-            {""foo"", true},
-            {""baz"", false},
+            {""Bob"", false},
+            {""Alice"", true},
+            {""Charlie"", false},
         };
 }";
 

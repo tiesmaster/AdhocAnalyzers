@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -41,7 +42,7 @@ namespace AdhocAnalyzers.Pricing
                 return;
             }
 
-            var strings = collectionInitializer
+            var collectionKeyStrings = collectionInitializer
                 .Expressions
                 .Cast<InitializerExpressionSyntax>()
                 .Select(x => x.Expressions.First())
@@ -49,13 +50,26 @@ namespace AdhocAnalyzers.Pricing
                 .Select(x => x.Token.ValueText)
                 .ToArray();
 
-            if (true /* IsSorted(strings) */)
+            if (!IsSorted(collectionKeyStrings))
             {
                 context.ReportDiagnostic(Diagnostic.Create(
                     _rule,
                     collectionInitializer.GetLocation(),
                     GetFieldIdentifier(objectCreation).ValueText));
             }
+        }
+
+        private bool IsSorted(string[] strings)
+        {
+            for (int i = 1; i < strings.Length; i++)
+            {
+                if (strings[i -1].CompareTo(strings[i]) > 0)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         private SyntaxToken GetFieldIdentifier(ObjectCreationExpressionSyntax objectCreation)
