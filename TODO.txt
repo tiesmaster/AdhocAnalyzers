@@ -1,3 +1,12 @@
+NEW
+===
+
+ * "git conflict markers in Usings" resolver
+ * sorted usernames in pricing API (met codefix die het sorteerd!)
+ * Immutable collections
+ codefix analyzer for immutable collections (don't call methods with using result of the call,
+    eg. don't do l.Clear(), because that will throw away the new emptied collection)
+
 IDEAS FOR ANAlYZERS/REFACTORINGS
 ================================
 
