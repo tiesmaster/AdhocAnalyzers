@@ -5,6 +5,7 @@ pool:
   vmImage: 'windows-latest'
 
 variables:
+  patch: $[counter('versioncounter', 89)]
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
 
