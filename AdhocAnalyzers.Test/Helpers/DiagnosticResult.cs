@@ -28,7 +28,7 @@ namespace AdhocAnalyzers.Test.Helpers
         public int Column { get; }
     }
 
-    public struct DiagnosticResult
+    public struct DiagnosticResult2
     {
         private DiagnosticResultLocation[] locations;
 

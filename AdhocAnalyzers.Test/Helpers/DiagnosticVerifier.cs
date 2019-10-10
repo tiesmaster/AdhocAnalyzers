@@ -14,7 +14,7 @@ namespace AdhocAnalyzers.Test.Helpers
     {
         protected abstract DiagnosticAnalyzer GetDiagnosticAnalyzer();
 
-        protected void VerifyDiagnostic(string source, params DiagnosticResult[] expected)
+        protected void VerifyDiagnostic(string source, params DiagnosticResult2[] expected)
         {
             var analyzer = GetDiagnosticAnalyzer();
             var diagnostics = GetSortedDiagnosticsFromDocuments(analyzer, DocumentFactory.CreateDocument(source));
@@ -55,7 +55,7 @@ namespace AdhocAnalyzers.Test.Helpers
         private static void VerifyDiagnosticResults(
             IEnumerable<Diagnostic> actualResults,
             DiagnosticAnalyzer analyzer,
-            params DiagnosticResult[] expectedResults)
+            params DiagnosticResult2[] expectedResults)
         {
             int expectedCount = expectedResults.Length;
             int actualCount = actualResults.Count();

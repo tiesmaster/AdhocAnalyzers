@@ -41,7 +41,7 @@ namespace AdhocAnalyzers.Test.AutoFixture
     }
 }";
 
-            var expected = new DiagnosticResult
+            var expected = new DiagnosticResult2
             {
                 Id = "AF0001",
                 Message = "Build<string>() directly followed by Create() can be simplified",
@@ -79,7 +79,7 @@ namespace AdhocAnalyzers.Test.AutoFixture
     }
 }";
 
-            var expected = new DiagnosticResult
+            var expected = new DiagnosticResult2
             {
                 Id = "AF0001",
                 Message = "Build<string>() directly followed by Create() can be simplified",

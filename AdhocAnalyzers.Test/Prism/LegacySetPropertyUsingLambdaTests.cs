@@ -57,7 +57,7 @@ namespace AdhocAnalyzers.Test.Prism
     }
 }";
 
-            var expected = new DiagnosticResult
+            var expected = new DiagnosticResult2
             {
                 Id = "PRISM0001",
                 Message = "SetProperty() using lambda syntax is deprecated, use the default version instead.",
