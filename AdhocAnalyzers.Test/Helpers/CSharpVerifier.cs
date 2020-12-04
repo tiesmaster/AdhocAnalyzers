@@ -30,6 +30,7 @@ namespace AdhocAnalyzers.Test.Helpers
         {
             var test = new Test { TestCode = source };
             test.ExpectedDiagnostics.AddRange(expected);
+            test.CompilerDiagnostics = CompilerDiagnostics.None;
             return test.RunAsync();
         }
 
@@ -48,6 +49,7 @@ namespace AdhocAnalyzers.Test.Helpers
             };
 
             test.ExpectedDiagnostics.AddRange(expected);
+            test.CompilerDiagnostics = CompilerDiagnostics.None;
             return test.RunAsync();
         }
 

@@ -1,4 +1,5 @@
-﻿using AdhocAnalyzers.Prism;
+﻿using System.Threading.Tasks;
+using AdhocAnalyzers.Prism;
 using AdhocAnalyzers.Test.Helpers;
 
 using Microsoft.CodeAnalysis;
@@ -9,18 +10,20 @@ using Xunit;
 
 namespace AdhocAnalyzers.Test.Prism
 {
+    using Verify = CSharpVerifier<LegacySetPropertyUsingLambdaAnalyzer>;
+
     public class LegacySetPropertyUsingLambdaTests : CodeFixVerifier
     {
         [Fact]
-        public void EmptySourceNoDiagnostics()
+        public async Task EmptySourceNoDiagnostics()
         {
             var test = "";
 
-            VerifyDiagnostic(test);
+            await Verify.VerifyAnalyzerAsync(test);
         }
 
         [Fact]
-        public void LegacySetPropertyInvocation_ShouldProvideDiagnosticAndCodeFix()
+        public async Task LegacySetPropertyInvocation_ShouldProvideDiagnosticAndCodeFix()
         {
             var oldSource =
 @"class Class1
@@ -35,7 +38,7 @@ namespace AdhocAnalyzers.Test.Prism
         }
         set
         {
-            SetProperty(() => _foo = value, _foo, value);
+            [|SetProperty(() => _foo = value, _foo, value|]);
         }
     }
 }";
@@ -57,6 +60,9 @@ namespace AdhocAnalyzers.Test.Prism
     }
 }";
 
+            //await Verify.VerifyAnalyzerAsync(oldSource);
+            await Verify.VerifyCodeFixAsync(oldSource, newSource);
+
             var expected = new DiagnosticResult2
             {
                 Id = "PRISM0001",
@@ -68,8 +74,8 @@ namespace AdhocAnalyzers.Test.Prism
                         }
             };
 
-            VerifyDiagnostic(oldSource, expected);
-            VerifyFix(oldSource, newSource);
+            //VerifyDiagnostic(oldSource, expected);
+            //VerifyFix(oldSource, newSource);
         }
 
         [Fact]
